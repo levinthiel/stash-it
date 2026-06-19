@@ -1,26 +1,94 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0c0d11;
+  --foreground: #ffffff;
+  --surface: #24272f;
+  --shell: #565f68;
+  --display: #24272f;
+  --outline: #0c0d11;
+  --accent: #f9c646;
+  --dot-color: #565f68;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-orbitron);
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--dot-color) 45%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 26px 26px;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.hw-outline {
+  border: 3px solid var(--outline);
+}
+
+.hw-inset {
+  border: 2px solid var(--outline);
+  background: var(--display);
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+select option {
+  background: #24272f;
+  color: #ffffff;
+}
+
+@keyframes server-led-active {
+  0%,
+  100% {
+    opacity: 1;
+    filter: brightness(1.1);
+  }
+  50% {
+    opacity: 0.35;
+    filter: brightness(0.7);
+  }
+}
+
+@keyframes server-led-idle {
+  0%,
+  88%,
+  100% {
+    opacity: 0.35;
+  }
+  92%,
+  94% {
+    opacity: 0.85;
+  }
+}
+
+.server-led-active {
+  animation: server-led-active var(--led-duration, 2s) ease-in-out infinite;
+  animation-delay: var(--led-delay, 0s);
+}
+
+.server-led-idle {
+  animation: server-led-idle var(--led-duration, 5s) ease-in-out infinite;
+  animation-delay: var(--led-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .server-led-active,
+  .server-led-idle {
+    animation: none;
+  }
 }
