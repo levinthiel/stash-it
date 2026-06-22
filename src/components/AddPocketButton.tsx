@@ -5,14 +5,15 @@ import { colors } from "@/lib/colors";
 
 interface AddPocketButtonProps {
   onClick: () => void;
+  ariaLabel?: string;
 }
 
-export function AddPocketButton({ onClick }: AddPocketButtonProps) {
+export function AddPocketButton({ onClick, ariaLabel = "Add pocket" }: AddPocketButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label="Add pocket"
+      aria-label={ariaLabel}
       className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-xl transition-transform active:scale-95"
       style={{
         background: colors.pocketGreen,
