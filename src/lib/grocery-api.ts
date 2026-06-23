@@ -30,3 +30,8 @@ export async function updateGrocery(id: string, update: GroceryUpdate): Promise<
   });
   return parseResponse<Grocery>(response);
 }
+
+export async function deleteGrocery(id: string): Promise<void> {
+  const response = await fetch(`/api/groceries/${id}`, { method: "DELETE" });
+  await parseResponse<{ success: boolean }>(response);
+}

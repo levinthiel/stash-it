@@ -68,3 +68,15 @@ export function getPocketColor(key: PocketColorKey) {
   const resolved = legacyColorMap[key] ?? key;
   return pocketColorOptions.find((c) => c.key === resolved) ?? pocketColorOptions[0];
 }
+
+export function getColorFromId(id: string): PocketColorKey {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash + id.charCodeAt(i)) % pocketColorOptions.length;
+  }
+  return pocketColorOptions[hash]?.key ?? "pocketBlue";
+}
+
+export function randomPocketColor(): PocketColorKey {
+  return pocketColorOptions[Math.floor(Math.random() * pocketColorOptions.length)].key;
+}

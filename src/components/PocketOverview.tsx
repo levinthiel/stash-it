@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AddPocketButton } from "@/components/AddPocketButton";
 import { HeaderAccentLines } from "@/components/HeaderAccentLines";
-import { HeaderExpensesMenu } from "@/components/HeaderExpensesMenu";
+import { HeaderNavMenu } from "@/components/HeaderNavMenu";
 import { PocketCard } from "@/components/PocketCard";
 import { PocketModal } from "@/components/PocketModal";
 import { colors } from "@/lib/colors";
@@ -99,7 +99,7 @@ export function PocketOverview() {
             Stash-it
           </h1>
           <HeaderAccentLines />
-          <HeaderExpensesMenu />
+          <HeaderNavMenu />
         </div>
 
         <div

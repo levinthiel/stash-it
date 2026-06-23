@@ -1,11 +1,13 @@
 "use client";
 
-import { Minus, Plus } from "iconoir-react";
-import { colors } from "@/lib/colors";
+import { Check, Minus, Plus } from "iconoir-react";
+import { colors, getPocketColor } from "@/lib/colors";
 import type { Grocery } from "@/types/grocery";
 
 interface GroceryItemRowProps {
   item: Grocery;
+  displayQuantity: number;
+  isPendingDelete: boolean;
   onToggle: (id: string, checked: boolean) => void;
   onQuantityChange: (id: string, quantity: number) => void;
 }
@@ -16,38 +18,72 @@ const stepButtonStyle = {
   color: colors.textPrimary,
 };
 
-export function GroceryItemRow({ item, onToggle, onQuantityChange }: GroceryItemRowProps) {
+export function GroceryItemRow({
+  item,
+  displayQuantity,
+  isPendingDelete,
+  onToggle,
+  onQuantityChange,
+}: GroceryItemRowProps) {
+  const isLocked = item.checked;
+  const accent = getPocketColor(item.color).accent;
+
   return (
     <div
-      className="flex w-full items-center gap-3 rounded-xl px-4 py-3"
+      className="flex w-full items-center gap-3 rounded-xl px-4 py-3 transition-opacity"
       style={{
         background: colors.shell,
-        opacity: item.checked ? 0.65 : 1,
+        opacity: isLocked ? 0.65 : isPendingDelete ? 0.5 : 1,
       }}
     >
-      <input
-        type="checkbox"
-        checked={item.checked}
-        onChange={(e) => onToggle(item.id, e.target.checked)}
-        aria-label={`Mark ${item.name} as ${item.checked ? "needed" : "done"}`}
-        className="h-4 w-4 shrink-0 cursor-pointer accent-[#32C3A2]"
-      />
+      <label className="relative flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center">
+        <input
+          type="checkbox"
+          checked={item.checked}
+          onChange={(e) => onToggle(item.id, e.target.checked)}
+          aria-label={`Mark ${item.name} as ${item.checked ? "needed" : "done"}`}
+          className="peer sr-only"
+        />
+        <span
+          className="flex h-5 w-5 items-center justify-center rounded-full border-2 transition-all duration-200 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2"
+          style={{
+            borderColor: item.checked ? accent : colors.panelLine,
+            background: item.checked ? accent : colors.display,
+            outlineColor: accent,
+          }}
+        >
+          {item.checked && (
+            <Check width={12} height={12} strokeWidth={3} color={colors.textPrimary} />
+          )}
+        </span>
+      </label>
 
       <p
         className="min-w-0 flex-1 truncate text-sm font-semibold uppercase tracking-wide"
         style={{
-          color: colors.textDark,
+          color: isLocked ? colors.textSecondary : accent,
           textDecoration: item.checked ? "line-through" : "none",
         }}
       >
         {item.name}
+        {isPendingDelete && (
+          <span
+            className="ml-2 text-[10px] font-normal normal-case tracking-normal"
+            style={{ color: colors.textSecondary }}
+          >
+            removing…
+          </span>
+        )}
       </p>
 
-      <div className="flex shrink-0 items-center gap-1.5">
+      <div
+        className="flex shrink-0 items-center gap-1.5"
+        style={{ pointerEvents: isLocked ? "none" : "auto" }}
+      >
         <button
           type="button"
-          onClick={() => onQuantityChange(item.id, item.quantity - 1)}
-          disabled={item.quantity <= 1}
+          onClick={() => onQuantityChange(item.id, displayQuantity - 1)}
+          disabled={isLocked || displayQuantity <= 0}
           aria-label={`Decrease ${item.name} quantity`}
           className="flex h-7 w-7 items-center justify-center rounded-md transition-opacity enabled:hover:opacity-80 disabled:opacity-40"
           style={stepButtonStyle}
@@ -62,14 +98,15 @@ export function GroceryItemRow({ item, onToggle, onQuantityChange }: GroceryItem
             color: colors.textPrimary,
           }}
         >
-          {item.quantity}
+          {displayQuantity}
         </span>
 
         <button
           type="button"
-          onClick={() => onQuantityChange(item.id, item.quantity + 1)}
+          onClick={() => onQuantityChange(item.id, displayQuantity + 1)}
+          disabled={isLocked}
           aria-label={`Increase ${item.name} quantity`}
-          className="flex h-7 w-7 items-center justify-center rounded-md transition-opacity hover:opacity-80"
+          className="flex h-7 w-7 items-center justify-center rounded-md transition-opacity enabled:hover:opacity-80 disabled:opacity-40"
           style={stepButtonStyle}
         >
           <Plus width={14} height={14} strokeWidth={2.5} />

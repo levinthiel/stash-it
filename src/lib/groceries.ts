@@ -1,13 +1,16 @@
 import { ObjectId } from "mongodb";
+import { getColorFromId, randomPocketColor } from "@/lib/colors";
 import { getGroceriesCollection } from "@/lib/mongodb";
 import type { Grocery, GroceryDocument, GroceryInput, GroceryUpdate } from "@/types/grocery";
 
 function toGrocery(doc: GroceryDocument & { _id: ObjectId }): Grocery {
+  const id = doc._id.toHexString();
   return {
-    id: doc._id.toHexString(),
+    id,
     name: doc.name,
     quantity: doc.quantity,
     checked: doc.checked,
+    color: doc.color ?? getColorFromId(id),
   };
 }
 
@@ -19,7 +22,7 @@ export async function listGroceries(): Promise<Grocery[]> {
 
 export async function createGrocery(input: GroceryInput): Promise<Grocery> {
   const collection = await getGroceriesCollection();
-  const document = { ...input, checked: false };
+  const document = { ...input, checked: false, color: randomPocketColor() };
   const result = await collection.insertOne(document);
   return toGrocery({ _id: result.insertedId, ...document });
 }

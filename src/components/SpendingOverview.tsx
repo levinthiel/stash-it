@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AddPocketButton } from "@/components/AddPocketButton";
 import { HeaderAccentLines } from "@/components/HeaderAccentLines";
-import { HeaderExpensesMenu } from "@/components/HeaderExpensesMenu";
+import { HeaderNavMenu } from "@/components/HeaderNavMenu";
 import { SpendingCard } from "@/components/SpendingCard";
 import { SpendingModal } from "@/components/SpendingModal";
 import { colors } from "@/lib/colors";
@@ -95,7 +95,7 @@ export function SpendingOverview() {
             Spendings
           </h1>
           <HeaderAccentLines />
-          <HeaderExpensesMenu />
+          <HeaderNavMenu />
         </div>
 
         <div

@@ -10,9 +10,10 @@ const menuItems = [
   { href: "/", label: "Stash-it" },
   { href: "/spendings", label: "Spendings" },
   { href: "/grocery", label: "Grocery List" },
+  { href: "/notes", label: "Notes" },
 ] as const;
 
-export function HeaderExpensesMenu() {
+export function HeaderNavMenu() {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
