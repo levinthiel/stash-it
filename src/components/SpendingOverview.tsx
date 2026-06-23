@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Wallet } from "iconoir-react";
 import { AddPocketButton } from "@/components/AddPocketButton";
 import { HeaderAccentLines } from "@/components/HeaderAccentLines";
-import { HeaderNavBox } from "@/components/HeaderNavBox";
+import { HeaderExpensesMenu } from "@/components/HeaderExpensesMenu";
 import { SpendingCard } from "@/components/SpendingCard";
 import { SpendingModal } from "@/components/SpendingModal";
 import { colors } from "@/lib/colors";
@@ -96,9 +95,7 @@ export function SpendingOverview() {
             Spendings
           </h1>
           <HeaderAccentLines />
-          <HeaderNavBox href="/" label="Go to pockets">
-            <Wallet width={18} height={18} strokeWidth={2} color={colors.textPrimary} />
-          </HeaderNavBox>
+          <HeaderExpensesMenu />
         </div>
 
         <div

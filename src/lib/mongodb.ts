@@ -1,6 +1,7 @@
 import { MongoClient, type Db, type Collection } from "mongodb";
 import type { PocketDocument } from "@/types/pocket";
 import type { SpendingDocument } from "@/types/spending";
+import type { GroceryDocument } from "@/types/grocery";
 
 const uri = process.env.MONGODB_URI;
 
@@ -44,4 +45,10 @@ export async function getSpendingsCollection(): Promise<Collection<SpendingDocum
   const collectionName = process.env.MONGODB_SPENDINGS_COLLECTION ?? "spendings";
   const db = await getDb();
   return db.collection<SpendingDocument>(collectionName);
+}
+
+export async function getGroceriesCollection(): Promise<Collection<GroceryDocument>> {
+  const collectionName = process.env.MONGODB_GROCERIES_COLLECTION ?? "groceries";
+  const db = await getDb();
+  return db.collection<GroceryDocument>(collectionName);
 }

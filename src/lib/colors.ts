@@ -22,6 +22,11 @@ export const colors = {
   textDark: "#0C0D11",
 
   border: "#0C0D11",
+
+  neonPink: "#FF3CAC",
+  neonBlue: "#51B5EE",
+  modalSurface: "#1A1A2E",
+  modalInput: "#2A2A4A",
 } as const;
 
 export type PocketColorKey = keyof Pick<

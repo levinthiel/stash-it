@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ShoppingBag } from "iconoir-react";
 import { AddPocketButton } from "@/components/AddPocketButton";
 import { HeaderAccentLines } from "@/components/HeaderAccentLines";
-import { HeaderNavBox } from "@/components/HeaderNavBox";
+import { HeaderExpensesMenu } from "@/components/HeaderExpensesMenu";
 import { PocketCard } from "@/components/PocketCard";
 import { PocketModal } from "@/components/PocketModal";
 import { colors } from "@/lib/colors";
@@ -100,9 +99,7 @@ export function PocketOverview() {
             Stash-it
           </h1>
           <HeaderAccentLines />
-          <HeaderNavBox href="/spendings" label="Go to spendings">
-            <ShoppingBag width={18} height={18} strokeWidth={2} color={colors.textPrimary} />
-          </HeaderNavBox>
+          <HeaderExpensesMenu />
         </div>
 
         <div
