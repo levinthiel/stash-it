@@ -1,5 +1,6 @@
 import type { ObjectId } from "mongodb";
 import type { PocketColorKey } from "@/lib/colors";
+import type { GroceryStore } from "@/lib/grocery-stores";
 
 export interface Grocery {
   id: string;
@@ -7,6 +8,7 @@ export interface Grocery {
   quantity: number;
   checked: boolean;
   color: PocketColorKey;
+  store: GroceryStore | null;
 }
 
 export interface GroceryDocument {
@@ -15,8 +17,13 @@ export interface GroceryDocument {
   quantity: number;
   checked: boolean;
   color?: PocketColorKey;
+  store?: GroceryStore;
 }
 
-export type GroceryInput = Pick<Grocery, "name" | "quantity">;
+export interface GroceryInput {
+  name: string;
+  quantity: number;
+  store?: GroceryStore | null;
+}
 
-export type GroceryUpdate = Partial<Pick<Grocery, "name" | "quantity" | "checked">>;
+export type GroceryUpdate = Partial<Pick<Grocery, "name" | "quantity" | "checked" | "store">>;

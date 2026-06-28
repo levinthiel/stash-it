@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { deleteGrocery, updateGrocery } from "@/lib/groceries";
+import { normalizeGroceryStore } from "@/lib/grocery-stores";
 import type { GroceryUpdate } from "@/types/grocery";
 
 function parseGroceryUpdate(body: unknown): GroceryUpdate | null {
   if (!body || typeof body !== "object") return null;
 
-  const { name, quantity, checked } = body as Record<string, unknown>;
+  const { name, quantity, checked, store } = body as Record<string, unknown>;
   const update: GroceryUpdate = {};
 
   if (name !== undefined) {
@@ -21,6 +22,11 @@ function parseGroceryUpdate(body: unknown): GroceryUpdate | null {
   if (checked !== undefined) {
     if (typeof checked !== "boolean") return null;
     update.checked = checked;
+  }
+
+  if (store !== undefined) {
+    if (store !== null && normalizeGroceryStore(store) === null) return null;
+    update.store = normalizeGroceryStore(store);
   }
 
   if (Object.keys(update).length === 0) return null;

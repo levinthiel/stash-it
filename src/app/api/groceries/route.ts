@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { createGrocery, listGroceries } from "@/lib/groceries";
+import { normalizeGroceryStore } from "@/lib/grocery-stores";
 import type { GroceryInput } from "@/types/grocery";
 
 function parseGroceryInput(body: unknown): GroceryInput | null {
   if (!body || typeof body !== "object") return null;
 
-  const { name, quantity } = body as Record<string, unknown>;
+  const { name, quantity, store } = body as Record<string, unknown>;
 
   if (typeof name !== "string" || !name.trim()) return null;
 
@@ -13,9 +14,14 @@ function parseGroceryInput(body: unknown): GroceryInput | null {
     quantity === undefined ? 1 : typeof quantity === "number" && !Number.isNaN(quantity) ? quantity : null;
   if (parsedQuantity === null || parsedQuantity < 1) return null;
 
+  if (store !== undefined && store !== null && normalizeGroceryStore(store) === null) {
+    return null;
+  }
+
   return {
     name: name.trim(),
     quantity: parsedQuantity,
+    store: store === undefined ? null : normalizeGroceryStore(store),
   };
 }
 

@@ -8,32 +8,82 @@ import { GroceryModal } from "@/components/GroceryModal";
 import { HeaderAccentLines } from "@/components/HeaderAccentLines";
 import { HeaderNavMenu } from "@/components/HeaderNavMenu";
 import { colors } from "@/lib/colors";
+import { GROCERY_STORES, type GroceryStore } from "@/lib/grocery-stores";
 import {
   createGrocery,
   deleteGrocery,
   fetchGroceries,
   updateGrocery,
 } from "@/lib/grocery-api";
-import type { Grocery } from "@/types/grocery";
+import type { Grocery, GroceryInput } from "@/types/grocery";
 
 const DELETE_DELAY_MS = 3000;
 
-function sortGroceries(items: Grocery[]): Grocery[] {
-  return [...items].sort((a, b) => {
-    if (a.checked !== b.checked) return Number(a.checked) - Number(b.checked);
-    return a.name.localeCompare(b.name);
+function sortByChecked(items: Grocery[]): Grocery[] {
+  return [...items].sort((a, b) => Number(a.checked) - Number(b.checked));
+}
+
+interface GrocerySection {
+  store: GroceryStore;
+  items: Grocery[];
+  leftCount: number;
+}
+
+function groupGroceries(items: Grocery[]): {
+  uncategorized: Grocery[];
+  sections: GrocerySection[];
+} {
+  const uncategorized = sortByChecked(items.filter((item) => item.store === null));
+
+  const sections = GROCERY_STORES.flatMap((store) => {
+    const storeItems = sortByChecked(items.filter((item) => item.store === store));
+    if (storeItems.length === 0) return [];
+
+    return [
+      {
+        store,
+        items: storeItems,
+        leftCount: storeItems.filter((item) => !item.checked).length,
+      },
+    ];
   });
+
+  return { uncategorized, sections };
+}
+
+function GroceryStoreSectionHeader({ store, leftCount }: { store: GroceryStore; leftCount: number }) {
+  return (
+    <h2
+      className="flex items-baseline gap-1.5 px-1 pt-4 pb-1 first:pt-0"
+      style={{ fontFamily: "var(--font-orbitron), sans-serif" }}
+    >
+      <span
+        className="text-sm font-bold uppercase tracking-wider"
+        style={{ color: colors.textPrimary }}
+      >
+        {store}
+      </span>
+      <span
+        className="text-xs font-semibold uppercase tracking-wider"
+        style={{ color: colors.textSecondary }}
+      >
+        · {leftCount} left
+      </span>
+    </h2>
+  );
 }
 
 export function GroceryOverview() {
   const [groceries, setGroceries] = useState<Grocery[]>([]);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<Grocery | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pendingDeleteIds, setPendingDeleteIds] = useState<Set<string>>(() => new Set());
   const [displayQuantities, setDisplayQuantities] = useState<Record<string, number>>({});
 
   const deleteTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const isModalOpen = isCreateOpen || editingItem !== null;
 
   const loadGroceries = useCallback(async () => {
     try {
@@ -115,8 +165,14 @@ export function GroceryOverview() {
     };
   }, []);
 
-  const sortedGroceries = useMemo(() => sortGroceries(groceries), [groceries]);
+  const { uncategorized, sections } = useMemo(() => groupGroceries(groceries), [groceries]);
   const hasCrossedItems = useMemo(() => groceries.some((item) => item.checked), [groceries]);
+  const hasItems = groceries.length > 0;
+
+  const closeModal = () => {
+    setIsCreateOpen(false);
+    setEditingItem(null);
+  };
 
   const handleToggle = async (id: string, checked: boolean) => {
     const item = groceries.find((g) => g.id === id);
@@ -129,7 +185,7 @@ export function GroceryOverview() {
     try {
       setError(null);
       const updated = await updateGrocery(id, { checked });
-      setGroceries((prev) => sortGroceries(prev.map((g) => (g.id === id ? updated : g))));
+      setGroceries((prev) => prev.map((g) => (g.id === id ? updated : g)));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update item");
     }
@@ -156,7 +212,7 @@ export function GroceryOverview() {
     try {
       setError(null);
       const updated = await updateGrocery(id, { quantity });
-      setGroceries((prev) => sortGroceries(prev.map((g) => (g.id === id ? updated : g))));
+      setGroceries((prev) => prev.map((g) => (g.id === id ? updated : g)));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update quantity");
     }
@@ -177,16 +233,45 @@ export function GroceryOverview() {
     }
   };
 
-  const handleConfirmCreate = async (data: { name: string; quantity: number }) => {
+  const handleConfirmModal = async (data: GroceryInput) => {
     try {
       setError(null);
-      const created = await createGrocery(data);
-      setGroceries((prev) => sortGroceries([...prev, created]));
-      setIsCreateOpen(false);
+
+      if (editingItem) {
+        const updated = await updateGrocery(editingItem.id, {
+          name: data.name,
+          quantity: data.quantity,
+          store: data.store ?? null,
+        });
+        setGroceries((prev) => prev.map((g) => (g.id === editingItem.id ? updated : g)));
+        setEditingItem(null);
+      } else {
+        const created = await createGrocery(data);
+        setGroceries((prev) => [...prev, created]);
+        setIsCreateOpen(false);
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add item");
+      setError(
+        err instanceof Error
+          ? err.message
+          : editingItem
+            ? "Failed to update item"
+            : "Failed to add item"
+      );
     }
   };
+
+  const renderItem = (item: Grocery) => (
+    <GroceryItemRow
+      key={item.id}
+      item={item}
+      displayQuantity={displayQuantities[item.id] ?? item.quantity}
+      isPendingDelete={pendingDeleteIds.has(item.id)}
+      onToggle={handleToggle}
+      onQuantityChange={handleQuantityChange}
+      onEdit={setEditingItem}
+    />
+  );
 
   return (
     <div className="relative min-h-full flex-1 pb-24">
@@ -223,21 +308,19 @@ export function GroceryOverview() {
           <p className="text-sm" style={{ color: colors.textSecondary }}>
             Loading grocery list…
           </p>
-        ) : sortedGroceries.length === 0 ? (
+        ) : !hasItems ? (
           <p className="text-sm" style={{ color: colors.textSecondary }}>
             No items yet. Tap + to add one.
           </p>
         ) : (
           <div className="flex flex-col gap-3">
-            {sortedGroceries.map((item) => (
-              <GroceryItemRow
-                key={item.id}
-                item={item}
-                displayQuantity={displayQuantities[item.id] ?? item.quantity}
-                isPendingDelete={pendingDeleteIds.has(item.id)}
-                onToggle={handleToggle}
-                onQuantityChange={handleQuantityChange}
-              />
+            {uncategorized.map(renderItem)}
+
+            {sections.map(({ store, items, leftCount }) => (
+              <div key={store}>
+                <GroceryStoreSectionHeader store={store} leftCount={leftCount} />
+                <div className="flex flex-col gap-3">{items.map(renderItem)}</div>
+              </div>
             ))}
           </div>
         )}
@@ -248,9 +331,10 @@ export function GroceryOverview() {
       <AddGroceryButton onClick={() => setIsCreateOpen(true)} />
 
       <GroceryModal
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        onConfirm={handleConfirmCreate}
+        isOpen={isModalOpen}
+        item={editingItem}
+        onClose={closeModal}
+        onConfirm={handleConfirmModal}
       />
     </div>
   );

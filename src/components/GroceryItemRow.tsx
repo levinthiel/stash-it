@@ -10,6 +10,7 @@ interface GroceryItemRowProps {
   isPendingDelete: boolean;
   onToggle: (id: string, checked: boolean) => void;
   onQuantityChange: (id: string, quantity: number) => void;
+  onEdit: (item: Grocery) => void;
 }
 
 const stepButtonStyle = {
@@ -24,9 +25,15 @@ export function GroceryItemRow({
   isPendingDelete,
   onToggle,
   onQuantityChange,
+  onEdit,
 }: GroceryItemRowProps) {
   const isLocked = item.checked;
   const accent = getPocketColor(item.color).accent;
+
+  const nameStyle = {
+    color: isLocked ? colors.textSecondary : accent,
+    textDecoration: item.checked ? ("line-through" as const) : ("none" as const),
+  };
 
   return (
     <div
@@ -58,23 +65,39 @@ export function GroceryItemRow({
         </span>
       </label>
 
-      <p
-        className="min-w-0 flex-1 truncate text-sm font-semibold uppercase tracking-wide"
-        style={{
-          color: isLocked ? colors.textSecondary : accent,
-          textDecoration: item.checked ? "line-through" : "none",
-        }}
-      >
-        {item.name}
-        {isPendingDelete && (
-          <span
-            className="ml-2 text-[10px] font-normal normal-case tracking-normal"
-            style={{ color: colors.textSecondary }}
-          >
-            removing…
-          </span>
-        )}
-      </p>
+      {isLocked ? (
+        <p
+          className="min-w-0 flex-1 truncate text-sm font-semibold uppercase tracking-wide"
+          style={nameStyle}
+        >
+          {item.name}
+          {isPendingDelete && (
+            <span
+              className="ml-2 text-[10px] font-normal normal-case tracking-normal"
+              style={{ color: colors.textSecondary }}
+            >
+              removing…
+            </span>
+          )}
+        </p>
+      ) : (
+        <button
+          type="button"
+          onClick={() => onEdit(item)}
+          className="min-w-0 flex-1 truncate text-left text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-80"
+          style={nameStyle}
+        >
+          {item.name}
+          {isPendingDelete && (
+            <span
+              className="ml-2 text-[10px] font-normal normal-case tracking-normal"
+              style={{ color: colors.textSecondary }}
+            >
+              removing…
+            </span>
+          )}
+        </button>
+      )}
 
       <div
         className="flex shrink-0 items-center gap-1.5"
