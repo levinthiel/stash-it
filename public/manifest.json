@@ -1,7 +1,7 @@
 {
-  "name": "Stash-it",
-  "short_name": "Stash-it",
-  "description": "Retro-futuristic pocket budgeting",
+  "name": "Homey",
+  "short_name": "Homey",
+  "description": "Your home for stash, grocery, notes, and spendings",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0C0D11",

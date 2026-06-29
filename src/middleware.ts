@@ -32,6 +32,7 @@ export const config = {
   matcher: [
     "/",
     "/login",
+    "/stash",
     "/spendings",
     "/grocery",
     "/notes",

@@ -1,3 +1,4 @@
+import { Home } from "iconoir-react";
 import { colors } from "@/lib/colors";
 
 const stripes = [
@@ -15,15 +16,16 @@ interface AppIconProps {
 
 export function AppIcon({ size = 64, className = "" }: AppIconProps) {
   const stripeHeight = size / stripes.length;
+  const iconSize = size * 0.42;
+  const borderRadius = Math.max(4, Math.round(size * 0.14));
 
   return (
     <div
-      className={`relative flex items-center justify-center overflow-hidden rounded-2xl ${className}`}
+      className={`relative flex items-center justify-center overflow-hidden ${className}`}
       style={{
         width: size,
         height: size,
-        background: colors.shell,
-        border: `3px solid ${colors.outline}`,
+        borderRadius,
       }}
     >
       <div className="absolute inset-0 flex flex-col">
@@ -31,16 +33,13 @@ export function AppIcon({ size = 64, className = "" }: AppIconProps) {
           <div key={i} style={{ height: stripeHeight, background: color }} />
         ))}
       </div>
-      <span
-        className="relative z-10 font-bold tracking-wider"
-        style={{
-          fontFamily: "var(--font-orbitron), sans-serif",
-          fontSize: size * 0.22,
-          color: colors.textPrimary,
-        }}
-      >
-        Stash
-      </span>
+      <Home
+        width={iconSize}
+        height={iconSize}
+        strokeWidth={2.75}
+        color={colors.textPrimary}
+        className="relative z-10"
+      />
     </div>
   );
 }

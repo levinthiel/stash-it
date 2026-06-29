@@ -137,7 +137,7 @@ export function PinGate() {
             color: colors.textPrimary,
           }}
         >
-          Stash-it
+          Homey
         </h1>
         <HeaderAccentLines />
       </div>

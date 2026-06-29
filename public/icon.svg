@@ -1,33 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <rect x="20" y="20" width="472" height="472" rx="72" fill="#565F68" stroke="#0C0D11" stroke-width="28"/>
   <clipPath id="panel">
-    <rect x="48" y="48" width="416" height="416" rx="56"/>
+    <rect width="512" height="512" rx="40"/>
   </clipPath>
   <g clip-path="url(#panel)">
-    <rect x="48" y="48" width="416" height="83.2" fill="#4D7FD6"/>
-    <rect x="48" y="131.2" width="416" height="83.2" fill="#51B5EE"/>
-    <rect x="48" y="214.4" width="416" height="83.2" fill="#32C3A2"/>
-    <rect x="48" y="297.6" width="416" height="83.2" fill="#F9C646"/>
-    <rect x="48" y="380.8" width="416" height="83.2" fill="#D75559"/>
+    <rect y="0" width="512" height="102.4" fill="#4D7FD6"/>
+    <rect y="102.4" width="512" height="102.4" fill="#51B5EE"/>
+    <rect y="204.8" width="512" height="102.4" fill="#32C3A2"/>
+    <rect y="307.2" width="512" height="102.4" fill="#F9C646"/>
+    <rect y="409.6" width="512" height="102.4" fill="#D75559"/>
   </g>
-  <g transform="translate(364, 48)">
-    <path
-      fill="#51B5EE"
-      stroke="#0C0D11"
-      stroke-width="6"
-      d="M 82 0 A 18 18 0 0 1 100 18 L 100 100 L 38 100 A 38 38 0 0 1 0 62 L 0 0 L 82 0 Z"
-    />
+  <g
+    transform="translate(256 278) scale(10) translate(-12 -12)"
+    stroke="#FFFFFF"
+    stroke-width="2.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  >
+    <path d="M2 8L11.7317 3.13416C11.9006 3.04971 12.0994 3.0497 12.2683 3.13416L22 8"/>
+    <path d="M20 11V19C20 20.1046 19.1046 21 18 21H6C4.89543 21 4 20.1046 4 19V11"/>
   </g>
-  <text
-    x="256"
-    y="300"
-    text-anchor="middle"
-    font-family="system-ui, -apple-system, Segoe UI, sans-serif"
-    font-size="132"
-    font-weight="800"
-    fill="#FFFFFF"
-    stroke="#0C0D11"
-    stroke-width="10"
-    paint-order="stroke fill"
-  >S</text>
 </svg>

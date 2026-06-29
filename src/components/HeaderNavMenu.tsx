@@ -7,10 +7,11 @@ import { NavArrowDown } from "iconoir-react";
 import { colors } from "@/lib/colors";
 
 const menuItems = [
-  { href: "/", label: "Stash-it" },
-  { href: "/spendings", label: "Spendings" },
-  { href: "/grocery", label: "Grocery List" },
-  { href: "/notes", label: "Notes" },
+  { href: "/", label: "Homey" },
+  { href: "/stash", label: "Stash-it" },
+  { href: "/grocery", label: "Grocer-it" },
+  { href: "/notes", label: "Note-it" },
+  { href: "/spendings", label: "Spend-it" },
 ] as const;
 
 export function HeaderNavMenu() {

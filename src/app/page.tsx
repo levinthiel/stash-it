@@ -1,5 +1,5 @@
-import { PocketOverview } from "@/components/PocketOverview";
+import { HomeLauncher } from "@/components/HomeLauncher";
 
 export default function Home() {
-  return <PocketOverview />;
+  return <HomeLauncher />;
 }

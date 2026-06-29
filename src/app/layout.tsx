@@ -19,8 +19,8 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: "Stash-it",
-  description: "Retro-futuristic pocket budgeting",
+  title: "Homey",
+  description: "Your home for stash, grocery, notes, and spendings",
   manifest: "/manifest.json",
   icons: {
     icon: "/icon.svg",
