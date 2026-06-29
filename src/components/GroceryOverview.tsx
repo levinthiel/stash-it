@@ -174,7 +174,7 @@ export function GroceryOverview() {
     setEditingItem(null);
   };
 
-  const handleToggle = async (id: string, checked: boolean) => {
+  const handleToggle = (id: string, checked: boolean) => {
     const item = groceries.find((g) => g.id === id);
     if (!item) return;
 
@@ -182,13 +182,23 @@ export function GroceryOverview() {
       cancelPendingDelete(id);
     }
 
-    try {
-      setError(null);
-      const updated = await updateGrocery(id, { checked });
-      setGroceries((prev) => prev.map((g) => (g.id === id ? updated : g)));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update item");
-    }
+    const previous = item.checked;
+
+    setGroceries((prev) =>
+      prev.map((g) => (g.id === id ? { ...g, checked } : g))
+    );
+
+    setError(null);
+    updateGrocery(id, { checked })
+      .then((updated) => {
+        setGroceries((prev) => prev.map((g) => (g.id === id ? updated : g)));
+      })
+      .catch((err) => {
+        setGroceries((prev) =>
+          prev.map((g) => (g.id === id ? { ...g, checked: previous } : g))
+        );
+        setError(err instanceof Error ? err.message : "Failed to update item");
+      });
   };
 
   const handleQuantityChange = async (id: string, quantity: number) => {
