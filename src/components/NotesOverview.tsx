@@ -38,7 +38,7 @@ export function NotesOverview() {
 
     try {
       setError(null);
-      const updated = await updateNote(data.id, {
+      const { note: updated } = await updateNote(data.id, {
         title: data.title,
         body: data.body,
       });

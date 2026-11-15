@@ -44,5 +44,6 @@ export const config = {
     "/api/groceries/:path*",
     "/api/notes",
     "/api/notes/:path*",
+    "/api/folders",
   ],
 };

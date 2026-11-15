@@ -15,7 +15,7 @@ function notePreview(body: string, maxLength = 80): string {
 }
 
 export function NoteCard({ note, onClick }: NoteCardProps) {
-  const accent = getPocketColor(note.color).accent;
+  const accent = getPocketColor(note.color ?? "pocketBlue").accent;
 
   return (
     <button
