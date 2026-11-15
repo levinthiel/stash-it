@@ -2,10 +2,10 @@ import { ObjectId } from "mongodb";
 import { getColorFromId, randomPocketColor } from "@/lib/colors";
 import { deriveNoteTitle } from "@/lib/markdown";
 import { getNotesCollection } from "@/lib/mongodb";
+import { MAX_PINNED } from "@/lib/note-constants";
 import type { Note, NoteDocument, NoteInput, NoteUpdate } from "@/types/note";
 
-export const MAX_PINNED = 5;
-export const RECENT_LIMIT = 10;
+export { MAX_PINNED, RECENT_LIMIT } from "@/lib/note-constants";
 
 function toNote(doc: NoteDocument & { _id: ObjectId }): Note {
   const id = doc._id.toHexString();
