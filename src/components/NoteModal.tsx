@@ -1,16 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { Pin } from "iconoir-react";
+import { MarkdownView } from "@/components/MarkdownView";
+import { MoveToFolderDialog } from "@/components/MoveToFolderDialog";
 import { colors } from "@/lib/colors";
+import { UNSORTED_LABEL } from "@/lib/folders";
 import type { Note } from "@/types/note";
+
+export type NoteModalConfirmData = {
+  id?: string;
+  title: string;
+  body: string;
+  folder: string | null;
+  pinned: boolean;
+};
 
 interface NoteModalProps {
   mode: "edit" | "create";
   note?: Note;
   isOpen: boolean;
+  folders: string[];
+  defaultFolder?: string | null;
   onClose: () => void;
-  onConfirm: (data: Pick<Note, "title" | "body"> & { id?: string }) => void;
+  onConfirm: (data: NoteModalConfirmData) => void;
   onDelete?: (id: string) => void;
+  onPinToggle?: (pinned: boolean) => void;
+  onFolderChange?: (folder: string | null) => void;
 }
 
 const fieldStyle = {
@@ -20,36 +36,43 @@ const fieldStyle = {
   borderRadius: 8,
 };
 
-export function NoteModal({
+function NoteModalForm({
   mode,
   note,
-  isOpen,
+  folders,
+  defaultFolder,
   onClose,
   onConfirm,
   onDelete,
-}: NoteModalProps) {
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
+  onPinToggle,
+  onFolderChange,
+}: {
+  mode: "edit" | "create";
+  note?: Note;
+  folders: string[];
+  defaultFolder: string | null;
+  onClose: () => void;
+  onConfirm: (data: NoteModalConfirmData) => void;
+  onDelete?: (id: string) => void;
+  onPinToggle?: (pinned: boolean) => void;
+  onFolderChange?: (folder: string | null) => void;
+}) {
+  const [title, setTitle] = useState(note?.title ?? "");
+  const [body, setBody] = useState(note?.body ?? "");
+  const [folder, setFolder] = useState<string | null>(note?.folder ?? defaultFolder);
+  const [pinned, setPinned] = useState(note?.pinned ?? false);
+  const [isEditing, setIsEditing] = useState(mode === "create");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      setTitle(note?.title ?? "");
-      setBody(note?.body ?? "");
-      setShowDeleteConfirm(false);
-    }
-  }, [isOpen, note]);
-
-  if (!isOpen) return null;
+  const [folderDialogOpen, setFolderDialogOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
-
     onConfirm({
       id: note?.id,
-      title: title.trim(),
+      title,
       body,
+      folder,
+      pinned,
     });
   };
 
@@ -59,32 +82,65 @@ export function NoteModal({
     onClose();
   };
 
+  const handlePinClick = () => {
+    const next = !pinned;
+    setPinned(next);
+    if (mode === "edit" && note?.id && onPinToggle) {
+      onPinToggle(next);
+    }
+  };
+
+  const handleFolderSelect = (next: string | null) => {
+    setFolder(next);
+    setFolderDialogOpen(false);
+    if (mode === "edit" && note?.id && onFolderChange) {
+      onFolderChange(next);
+    }
+  };
+
+  const folderLabel = folder ?? UNSORTED_LABEL;
+
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
-      onClick={onClose}
-    >
-      <div className="absolute inset-0 bg-black/80" />
-      <div
-        className="relative z-10 flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden"
-        style={{
-          background: colors.modalSurface,
-          border: `1px solid ${colors.border}`,
-          borderRadius: 8,
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="overflow-y-auto p-6">
+    <>
+      <div className="overflow-y-auto p-6">
+        <div className="mb-4 flex items-start justify-between gap-3">
           <h2
-            className="mb-6 text-lg font-bold uppercase tracking-wider"
+            className="text-lg font-bold uppercase tracking-wider"
             style={{
               fontFamily: "var(--font-orbitron), sans-serif",
               color: colors.textPrimary,
             }}
           >
-            {mode === "edit" ? "Edit Note" : "New Note"}
+            {mode === "create" ? "New Note" : isEditing ? "Edit Note" : "Note"}
           </h2>
+          <button
+            type="button"
+            aria-label={pinned ? "Unpin note" : "Pin note"}
+            aria-pressed={pinned}
+            onClick={handlePinClick}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-opacity hover:opacity-80"
+            style={{
+              background: colors.shell,
+              color: pinned ? colors.accent : colors.textSecondary,
+            }}
+          >
+            <Pin width={18} height={18} strokeWidth={2} />
+          </button>
+        </div>
 
+        <button
+          type="button"
+          onClick={() => setFolderDialogOpen(true)}
+          className="mb-4 rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider transition-opacity hover:opacity-80"
+          style={{
+            background: colors.shell,
+            color: colors.textSecondary,
+          }}
+        >
+          Folder · {folderLabel}
+        </button>
+
+        {isEditing ? (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5">
               <span
@@ -113,7 +169,7 @@ export function NoteModal({
               <textarea
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
-                placeholder="Write something…"
+                placeholder="Write something in markdown…"
                 rows={8}
                 className="resize-y px-3 py-2.5 outline-none"
                 style={fieldStyle}
@@ -123,7 +179,10 @@ export function NoteModal({
             <div className="mt-2 flex gap-3">
               <button
                 type="button"
-                onClick={onClose}
+                onClick={() => {
+                  if (mode === "edit") setIsEditing(false);
+                  else onClose();
+                }}
                 className="flex-1 rounded-lg py-3 text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-80"
                 style={{
                   background: colors.shell,
@@ -187,7 +246,97 @@ export function NoteModal({
               </div>
             )}
           </form>
-        </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <h3
+              className="text-base font-semibold"
+              style={{ color: colors.textPrimary }}
+              title={note?.title}
+            >
+              {note?.title}
+            </h3>
+            <MarkdownView source={note?.body ?? ""} />
+            <div className="mt-2 flex gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 rounded-lg py-3 text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-80"
+                style={{
+                  background: colors.shell,
+                  color: colors.textSecondary,
+                  border: `1px solid ${colors.border}`,
+                }}
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsEditing(true)}
+                className="flex-1 rounded-lg py-3 text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90"
+                style={{
+                  background: colors.neonBlue,
+                  color: colors.textDark,
+                }}
+              >
+                Edit
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <MoveToFolderDialog
+        isOpen={folderDialogOpen}
+        currentFolder={folder}
+        folders={folders}
+        onClose={() => setFolderDialogOpen(false)}
+        onSelect={handleFolderSelect}
+      />
+    </>
+  );
+}
+
+export function NoteModal({
+  mode,
+  note,
+  isOpen,
+  folders,
+  defaultFolder = null,
+  onClose,
+  onConfirm,
+  onDelete,
+  onPinToggle,
+  onFolderChange,
+}: NoteModalProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/80" />
+      <div
+        className="relative z-10 flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden"
+        style={{
+          background: colors.modalSurface,
+          border: `1px solid ${colors.border}`,
+          borderRadius: 8,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <NoteModalForm
+          key={note?.id ?? `create-${defaultFolder ?? "unsorted"}`}
+          mode={mode}
+          note={note}
+          folders={folders}
+          defaultFolder={defaultFolder}
+          onClose={onClose}
+          onConfirm={onConfirm}
+          onDelete={onDelete}
+          onPinToggle={onPinToggle}
+          onFolderChange={onFolderChange}
+        />
       </div>
     </div>
   );
