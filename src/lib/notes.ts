@@ -124,8 +124,31 @@ export async function updateNote(
 
 export async function renameFolder(from: string, to: string): Promise<number> {
   const collection = await getNotesCollection();
-  const result = await collection.updateMany({ folder: from }, { $set: { folder: to } });
-  return result.modifiedCount;
+  const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const descendants = await collection
+    .find({ folder: { $regex: `^${escaped}/` } })
+    .toArray();
+
+  let modified = 0;
+
+  const exact = await collection.updateMany(
+    { folder: from },
+    { $set: { folder: to } }
+  );
+  modified += exact.modifiedCount;
+
+  for (const doc of descendants) {
+    const folder = (doc as NoteDocument).folder;
+    if (typeof folder !== "string") continue;
+    const next = to + folder.slice(from.length);
+    const result = await collection.updateOne(
+      { _id: doc._id },
+      { $set: { folder: next } }
+    );
+    modified += result.modifiedCount;
+  }
+
+  return modified;
 }
 
 export async function deleteNote(id: string): Promise<boolean> {

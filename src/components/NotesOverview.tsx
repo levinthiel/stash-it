@@ -5,6 +5,7 @@ import { NavArrowLeft } from "iconoir-react";
 import { AddNoteButton } from "@/components/AddNoteButton";
 import { FolderNameDialog } from "@/components/FolderNameDialog";
 import {
+  ChildFolderPills,
   FolderPillBar,
   type NotesActiveView,
 } from "@/components/FolderPillBar";
@@ -15,7 +16,19 @@ import { NoteCard } from "@/components/NoteCard";
 import { NoteModal, type NoteModalConfirmData } from "@/components/NoteModal";
 import { NotesToast } from "@/components/NotesToast";
 import { colors } from "@/lib/colors";
-import { distinctFolders, UNSORTED_LABEL } from "@/lib/folders";
+import {
+  childFolders,
+  distinctFolders,
+  folderBreadcrumbs,
+  folderDepth,
+  folderLeafName,
+  folderParentPath,
+  isFolderPrefix,
+  MAX_FOLDER_DEPTH,
+  rewriteFolderPrefix,
+  topLevelFolders,
+  UNSORTED_LABEL,
+} from "@/lib/folders";
 import {
   createNote,
   deleteNote,
@@ -49,7 +62,7 @@ export function NotesOverview() {
   const [toast, setToast] = useState<string | null>(null);
 
   const [folderDialog, setFolderDialog] = useState<
-    | { mode: "create" }
+    | { mode: "create"; parentPath: string | null }
     | { mode: "rename"; folder: string }
     | null
   >(null);
@@ -88,10 +101,13 @@ export function NotesOverview() {
     };
   }, []);
 
-  const folders = useMemo(
-    () => distinctFolders(notes.map((n) => n.folder)),
-    [notes]
-  );
+  const folders = useMemo(() => {
+    const fromNotes = notes.map((n) => n.folder);
+    if (createFolder) return distinctFolders([...fromNotes, createFolder]);
+    return distinctFolders(fromNotes);
+  }, [notes, createFolder]);
+
+  const topFolders = useMemo(() => topLevelFolders(folders), [folders]);
 
   const folderCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -106,6 +122,11 @@ export function NotesOverview() {
     () => notes.filter((n) => n.folder == null).length,
     [notes]
   );
+
+  const childFolderList = useMemo(() => {
+    if (activeView.type !== "folder" || activeView.folder == null) return [];
+    return childFolders(folders, activeView.folder);
+  }, [activeView, folders]);
 
   const upsertNote = useCallback((note: Note) => {
     setNotes((prev) => {
@@ -201,9 +222,9 @@ export function NotesOverview() {
     }
   };
 
-  const handleCreateFolder = (name: string) => {
+  const handleCreateFolder = (fullPath: string) => {
     setFolderDialog(null);
-    setCreateFolder(name);
+    setCreateFolder(fullPath);
     setIsCreateOpen(true);
   };
 
@@ -219,11 +240,12 @@ export function NotesOverview() {
         distinctFolders(data.map((n) => n.folder)).find(
           (folder) => folder.toLowerCase() === to.toLowerCase()
         ) ?? to;
-      setActiveView((view) =>
-        view.type === "folder" && view.folder === from
-          ? { type: "folder", folder: resolved }
-          : view
-      );
+      setActiveView((view) => {
+        if (view.type !== "folder" || view.folder == null) return view;
+        if (!isFolderPrefix(from, view.folder)) return view;
+        const rewritten = rewriteFolderPrefix(view.folder, from, resolved);
+        return { type: "folder", folder: rewritten ?? resolved };
+      });
       setFolderDialog(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to rename folder");
@@ -233,7 +255,9 @@ export function NotesOverview() {
   const handleMoveFolderToUnsorted = async () => {
     if (!folderDialog || folderDialog.mode !== "rename") return;
     const from = folderDialog.folder;
-    const targets = notes.filter((n) => n.folder === from);
+    const targets = notes.filter(
+      (n) => n.folder != null && isFolderPrefix(from, n.folder)
+    );
     try {
       setError(null);
       for (const note of targets) {
@@ -250,6 +274,19 @@ export function NotesOverview() {
   const openCreate = (folder: string | null = null) => {
     setCreateFolder(folder);
     setIsCreateOpen(true);
+  };
+
+  const handleBackFromFolder = () => {
+    if (activeView.type !== "folder" || activeView.folder == null) {
+      setActiveView({ type: "all" });
+      return;
+    }
+    const parent = folderParentPath(activeView.folder);
+    if (parent) {
+      setActiveView({ type: "folder", folder: parent });
+    } else {
+      setActiveView({ type: "all" });
+    }
   };
 
   const pinnedNotes = useMemo(
@@ -279,8 +316,18 @@ export function NotesOverview() {
 
   const folderTitle =
     activeView.type === "folder"
-      ? activeView.folder ?? UNSORTED_LABEL
+      ? activeView.folder == null
+        ? UNSORTED_LABEL
+        : folderLeafName(activeView.folder)
       : null;
+
+  const activeFolderPath =
+    activeView.type === "folder" && activeView.folder != null
+      ? activeView.folder
+      : null;
+
+  const canCreateSubfolder =
+    activeFolderPath != null && folderDepth(activeFolderPath) < MAX_FOLDER_DEPTH;
 
   const renderNoteList = (list: Note[]) =>
     list.map((note) => (
@@ -315,14 +362,14 @@ export function NotesOverview() {
       <main className="px-5">
         <FolderPillBar
           activeView={activeView}
-          folders={folders}
+          folders={topFolders}
           totalCount={notes.length}
           unsortedCount={unsortedCount}
           folderCounts={folderCounts}
           onSelectAll={() => setActiveView({ type: "all" })}
           onSelectUnsorted={() => setActiveView({ type: "folder", folder: null })}
           onSelectFolder={(folder) => setActiveView({ type: "folder", folder })}
-          onCreateFolder={() => setFolderDialog({ mode: "create" })}
+          onCreateFolder={() => setFolderDialog({ mode: "create", parentPath: null })}
           onRenameFolder={(folder) => setFolderDialog({ mode: "rename", folder })}
         />
 
@@ -391,26 +438,63 @@ export function NotesOverview() {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-2">
               <button
                 type="button"
-                aria-label="Back to all notes"
-                onClick={() => setActiveView({ type: "all" })}
-                className="flex h-9 w-9 items-center justify-center rounded-lg transition-opacity hover:opacity-80"
+                aria-label="Back"
+                onClick={handleBackFromFolder}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-opacity hover:opacity-80"
                 style={{ background: colors.shell, color: colors.textPrimary }}
               >
                 <NavArrowLeft width={20} height={20} strokeWidth={2} />
               </button>
               <h2
-                className="text-base font-bold uppercase tracking-wide"
+                className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-base font-bold uppercase tracking-wide"
                 style={{
                   fontFamily: "var(--font-orbitron), sans-serif",
                   color: colors.textPrimary,
                 }}
               >
-                {folderTitle}
+                {activeFolderPath != null
+                  ? folderBreadcrumbs(activeFolderPath).map((crumb, index, crumbs) => {
+                      const isLast = index === crumbs.length - 1;
+                      return (
+                        <span key={crumb.path} className="inline-flex min-w-0 items-center gap-1.5">
+                          {index > 0 && (
+                            <span style={{ color: colors.textSecondary }}>/</span>
+                          )}
+                          {isLast ? (
+                            <span className="truncate">{crumb.label}</span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setActiveView({ type: "folder", folder: crumb.path })
+                              }
+                              className="truncate uppercase tracking-wide transition-opacity hover:opacity-80"
+                              style={{
+                                fontFamily: "var(--font-orbitron), sans-serif",
+                                color: colors.textSecondary,
+                              }}
+                            >
+                              {crumb.label}
+                            </button>
+                          )}
+                        </span>
+                      );
+                    })
+                  : folderTitle}
               </h2>
             </div>
+
+            {activeFolderPath != null && (
+              <ChildFolderPills
+                folders={childFolderList}
+                folderCounts={folderCounts}
+                onSelectFolder={(folder) => setActiveView({ type: "folder", folder })}
+                onRenameFolder={(folder) => setFolderDialog({ mode: "rename", folder })}
+              />
+            )}
 
             {folderViewNotes.pinned.length === 0 &&
             folderViewNotes.rest.length === 0 ? (
@@ -438,8 +522,20 @@ export function NotesOverview() {
       </main>
 
       <AddNoteButton
-        onClick={() =>
+        onAddNote={() =>
           openCreate(activeView.type === "folder" ? activeView.folder : null)
+        }
+        onAddFolder={
+          // Top-level folder from All/Unsorted; subfolder when inside a folder below max depth.
+          activeView.type === "all" ||
+          (activeView.type === "folder" && activeView.folder === null) ||
+          canCreateSubfolder
+            ? () =>
+                setFolderDialog({
+                  mode: "create",
+                  parentPath: activeFolderPath,
+                })
+            : undefined
         }
       />
 
@@ -474,12 +570,20 @@ export function NotesOverview() {
       <FolderNameDialog
         mode={folderDialog?.mode === "rename" ? "rename" : "create"}
         isOpen={folderDialog !== null}
-        initialName={folderDialog?.mode === "rename" ? folderDialog.folder : ""}
+        folderPath={folderDialog?.mode === "rename" ? folderDialog.folder : undefined}
+        parentPath={
+          folderDialog?.mode === "create" ? folderDialog.parentPath : null
+        }
+        initialName={
+          folderDialog?.mode === "rename"
+            ? folderLeafName(folderDialog.folder)
+            : ""
+        }
         existingFolders={folders}
         onClose={() => setFolderDialog(null)}
-        onConfirm={(name) => {
-          if (folderDialog?.mode === "rename") handleRenameFolder(name);
-          else handleCreateFolder(name);
+        onConfirm={(fullPath) => {
+          if (folderDialog?.mode === "rename") handleRenameFolder(fullPath);
+          else handleCreateFolder(fullPath);
         }}
         onMoveToUnsorted={
           folderDialog?.mode === "rename" ? handleMoveFolderToUnsorted : undefined

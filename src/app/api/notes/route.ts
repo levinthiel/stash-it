@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { validPocketColorKeys, type PocketColorKey } from "@/lib/colors";
-import { distinctFolders, findExistingFolderCasing, validateFolderName } from "@/lib/folders";
+import { distinctFolders, findExistingFolderCasing, validateFolderPath } from "@/lib/folders";
 import { createNote, listFolderNames, listNotes } from "@/lib/notes";
 import type { NoteInput } from "@/types/note";
 
@@ -42,7 +42,7 @@ function parseNoteInput(
     if (folder === null) {
       input.folder = null;
     } else {
-      const validated = validateFolderName(folder);
+      const validated = validateFolderPath(folder);
       if (!validated) {
         return { error: "Invalid folder name" };
       }

@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { colors } from "@/lib/colors";
-import { UNSORTED_LABEL, validateFolderName } from "@/lib/folders";
+import {
+  folderDepth,
+  folderLeafName,
+  MAX_FOLDER_SEGMENT_LENGTH,
+  UNSORTED_LABEL,
+  validateFolderSegment,
+} from "@/lib/folders";
 
 interface MoveToFolderDialogProps {
   isOpen: boolean;
@@ -36,7 +42,7 @@ function MoveToFolderDialogForm({
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    const validated = validateFolderName(newName);
+    const validated = validateFolderSegment(newName);
     if (!validated) {
       setError("Use 1–30 characters with no / in the name.");
       return;
@@ -79,6 +85,7 @@ function MoveToFolderDialogForm({
 
         {folders.map((folder) => {
           const active = currentFolder === folder;
+          const depth = folderDepth(folder) - 1;
           return (
             <button
               key={folder}
@@ -87,10 +94,11 @@ function MoveToFolderDialogForm({
               style={{
                 background: active ? colors.neonBlue : colors.shell,
                 color: active ? colors.textDark : colors.textPrimary,
+                paddingLeft: 12 + depth * 16,
               }}
               onClick={() => onSelect(folder)}
             >
-              {folder}
+              {folderLeafName(folder)}
             </button>
           );
         })}
@@ -107,7 +115,7 @@ function MoveToFolderDialogForm({
                 setError(null);
               }}
               placeholder="New folder name"
-              maxLength={30}
+              maxLength={MAX_FOLDER_SEGMENT_LENGTH}
               autoFocus
               className="px-3 py-2.5 outline-none"
               style={fieldStyle}

@@ -2,15 +2,27 @@
 
 import { useState } from "react";
 import { colors } from "@/lib/colors";
-import { UNSORTED_LABEL, validateFolderName } from "@/lib/folders";
+import {
+  folderParentPath,
+  joinFolderPath,
+  MAX_FOLDER_SEGMENT_LENGTH,
+  UNSORTED_LABEL,
+  validateFolderPath,
+  validateFolderSegment,
+} from "@/lib/folders";
 
 interface FolderNameDialogProps {
   mode: "create" | "rename";
   isOpen: boolean;
+  /** Full path being renamed (rename mode). */
+  folderPath?: string;
+  /** Parent path for create-under-parent; null/omit = top-level. */
+  parentPath?: string | null;
   initialName?: string;
   existingFolders: string[];
   onClose: () => void;
-  onConfirm: (name: string) => void;
+  /** Called with the full folder path. */
+  onConfirm: (fullPath: string) => void;
   onMoveToUnsorted?: () => void;
 }
 
@@ -23,6 +35,8 @@ const fieldStyle = {
 
 function FolderNameDialogForm({
   mode,
+  folderPath,
+  parentPath,
   initialName,
   existingFolders,
   onClose,
@@ -30,36 +44,51 @@ function FolderNameDialogForm({
   onMoveToUnsorted,
 }: {
   mode: "create" | "rename";
+  folderPath?: string;
+  parentPath: string | null;
   initialName: string;
   existingFolders: string[];
   onClose: () => void;
-  onConfirm: (name: string) => void;
+  onConfirm: (fullPath: string) => void;
   onMoveToUnsorted?: () => void;
 }) {
   const [name, setName] = useState(initialName);
   const [error, setError] = useState<string | null>(null);
   const [confirmUnsorted, setConfirmUnsorted] = useState(false);
 
+  const effectiveParent =
+    mode === "rename" && folderPath
+      ? folderParentPath(folderPath)
+      : parentPath;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const validated = validateFolderName(name);
+    const validated = validateFolderSegment(name);
     if (!validated) {
       setError("Use 1–30 characters with no / in the name.");
       return;
     }
 
+    const fullPath = joinFolderPath(effectiveParent, validated);
+    if (!validateFolderPath(fullPath)) {
+      setError("Folder path is too deep or invalid.");
+      return;
+    }
+
     const collision = existingFolders.find(
       (folder) =>
-        folder.toLowerCase() === validated.toLowerCase() &&
-        (mode === "create" || folder.toLowerCase() !== initialName.toLowerCase())
+        folder.toLowerCase() === fullPath.toLowerCase() &&
+        (mode === "create" ||
+          !folderPath ||
+          folder.toLowerCase() !== folderPath.toLowerCase())
     );
 
-    if (mode === "create" && collision) {
+    if (collision) {
       setError(`Folder "${collision}" already exists.`);
       return;
     }
 
-    onConfirm(validated);
+    onConfirm(fullPath);
   };
 
   return (
@@ -71,8 +100,18 @@ function FolderNameDialogForm({
           color: colors.textPrimary,
         }}
       >
-        {mode === "create" ? "New Folder" : "Rename Folder"}
+        {mode === "create"
+          ? effectiveParent
+            ? "New Subfolder"
+            : "New Folder"
+          : "Rename Folder"}
       </h2>
+
+      {effectiveParent && mode === "create" && (
+        <p className="mb-4 text-sm" style={{ color: colors.textSecondary }}>
+          Under {effectiveParent}
+        </p>
+      )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1.5">
@@ -89,8 +128,8 @@ function FolderNameDialogForm({
               setName(e.target.value);
               setError(null);
             }}
-            placeholder="e.g., Mine"
-            maxLength={30}
+            placeholder="e.g., Ideas"
+            maxLength={MAX_FOLDER_SEGMENT_LENGTH}
             autoFocus
             className="px-3 py-2.5 outline-none"
             style={fieldStyle}
@@ -133,7 +172,8 @@ function FolderNameDialogForm({
             {confirmUnsorted ? (
               <div className="flex flex-col gap-3">
                 <p className="text-center text-sm" style={{ color: colors.textSecondary }}>
-                  Move all notes in this folder to {UNSORTED_LABEL}? Notes are kept.
+                  Move all notes in this folder and its subfolders to {UNSORTED_LABEL}?
+                  Notes are kept.
                 </p>
                 <div className="flex gap-3">
                   <button
@@ -177,6 +217,8 @@ function FolderNameDialogForm({
 export function FolderNameDialog({
   mode,
   isOpen,
+  folderPath,
+  parentPath = null,
   initialName = "",
   existingFolders,
   onClose,
@@ -201,8 +243,10 @@ export function FolderNameDialog({
         onClick={(e) => e.stopPropagation()}
       >
         <FolderNameDialogForm
-          key={`${mode}-${initialName}`}
+          key={`${mode}-${folderPath ?? parentPath ?? "root"}-${initialName}`}
           mode={mode}
+          folderPath={folderPath}
+          parentPath={parentPath}
           initialName={initialName}
           existingFolders={existingFolders}
           onClose={onClose}

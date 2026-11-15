@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { Plus } from "iconoir-react";
 import { colors } from "@/lib/colors";
-import { UNSORTED_LABEL } from "@/lib/folders";
+import { folderLeafName, FOLDER_SEP, UNSORTED_LABEL } from "@/lib/folders";
 
 export type NotesActiveView =
   | { type: "all" }
@@ -11,6 +11,7 @@ export type NotesActiveView =
 
 interface FolderPillBarProps {
   activeView: NotesActiveView;
+  /** Top-level folder paths only. */
   folders: string[];
   totalCount: number;
   unsortedCount: number;
@@ -23,6 +24,14 @@ interface FolderPillBarProps {
 }
 
 const LONG_PRESS_MS = 500;
+
+function isFolderActive(activeView: NotesActiveView, folder: string): boolean {
+  if (activeView.type !== "folder" || activeView.folder == null) return false;
+  if (activeView.folder === folder) return true;
+  return activeView.folder
+    .toLowerCase()
+    .startsWith(folder.toLowerCase() + FOLDER_SEP);
+}
 
 export function FolderPillBar({
   activeView,
@@ -105,7 +114,7 @@ export function FolderPillBar({
         </button>
 
         {folders.map((folder) => {
-          const active = activeView.type === "folder" && activeView.folder === folder;
+          const active = isFolderActive(activeView, folder);
           const count = folderCounts[folder] ?? 0;
           return (
             <button
@@ -134,7 +143,7 @@ export function FolderPillBar({
                 onRenameFolder(folder);
               }}
             >
-              {folder}{" "}
+              {folderLeafName(folder)}{" "}
               <span
                 style={{ color: active ? colors.textDark : colors.textSecondary, opacity: 0.8 }}
               >
@@ -157,6 +166,82 @@ export function FolderPillBar({
           <Plus width={16} height={16} strokeWidth={2.5} />
         </button>
       </div>
+    </div>
+  );
+}
+
+interface ChildFolderPillsProps {
+  folders: string[];
+  folderCounts: Record<string, number>;
+  onSelectFolder: (folder: string) => void;
+  onRenameFolder: (folder: string) => void;
+}
+
+export function ChildFolderPills({
+  folders,
+  folderCounts,
+  onSelectFolder,
+  onRenameFolder,
+}: ChildFolderPillsProps) {
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressFired = useRef(false);
+
+  const clearLongPress = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
+  const startLongPress = (folder: string) => {
+    longPressFired.current = false;
+    clearLongPress();
+    longPressTimer.current = setTimeout(() => {
+      longPressFired.current = true;
+      onRenameFolder(folder);
+    }, LONG_PRESS_MS);
+  };
+
+  if (folders.length === 0) return null;
+
+  const pillBase =
+    "shrink-0 rounded-lg px-3 py-1.5 text-sm font-semibold whitespace-nowrap transition-opacity active:opacity-80";
+
+  return (
+    <div className="scrollbar-none flex gap-2 overflow-x-auto pb-0.5">
+      {folders.map((folder) => {
+        const count = folderCounts[folder] ?? 0;
+        return (
+          <button
+            key={folder}
+            type="button"
+            className={pillBase}
+            style={{
+              background: colors.shell,
+              color: colors.textPrimary,
+            }}
+            onClick={() => {
+              if (longPressFired.current) {
+                longPressFired.current = false;
+                return;
+              }
+              onSelectFolder(folder);
+            }}
+            onPointerDown={() => startLongPress(folder)}
+            onPointerUp={clearLongPress}
+            onPointerLeave={clearLongPress}
+            onPointerCancel={clearLongPress}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              clearLongPress();
+              onRenameFolder(folder);
+            }}
+          >
+            {folderLeafName(folder)}{" "}
+            <span style={{ color: colors.textSecondary, opacity: 0.8 }}>{count}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -3,7 +3,7 @@ import {
   distinctFolders,
   findExistingFolderCasing,
   foldersEqual,
-  validateFolderName,
+  validateFolderPath,
 } from "@/lib/folders";
 import { listFolderNames, renameFolder } from "@/lib/notes";
 
@@ -15,8 +15,8 @@ export async function PUT(request: Request) {
     }
 
     const { from, to } = body as Record<string, unknown>;
-    const fromName = validateFolderName(from);
-    const toName = validateFolderName(to);
+    const fromName = validateFolderPath(from);
+    const toName = validateFolderPath(to);
 
     if (!fromName || !toName) {
       return NextResponse.json({ error: "Invalid folder name" }, { status: 400 });

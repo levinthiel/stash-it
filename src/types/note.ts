@@ -6,7 +6,7 @@ export interface Note {
   title: string;
   body: string; // markdown source, stored verbatim
   color?: PocketColorKey;
-  folder: string | null; // null => "Unsorted"; "/" reserved for future nesting
+  folder: string | null; // null => "Unsorted"; nested paths use "/" (e.g. Work/Ideas)
   pinned: boolean;
   pinnedAt: string | null; // ISO timestamp of the most recent pin action
   updatedAt: string;
