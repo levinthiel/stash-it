@@ -1,19 +1,57 @@
 import { NextResponse } from "next/server";
-import { createNote, listNotes } from "@/lib/notes";
+import { validPocketColorKeys, type PocketColorKey } from "@/lib/colors";
+import { distinctFolders, findExistingFolderCasing, validateFolderPath } from "@/lib/folders";
+import { createNote, listFolderNames, listNotes } from "@/lib/notes";
 import type { NoteInput } from "@/types/note";
 
-function parseNoteInput(body: unknown): NoteInput | null {
-  if (!body || typeof body !== "object") return null;
+function parseNoteInput(
+  body: unknown,
+  existingFolders: string[]
+): { input: NoteInput } | { error: string } {
+  if (!body || typeof body !== "object") {
+    return { error: "Invalid note data" };
+  }
 
-  const { title, body: noteBody } = body as Record<string, unknown>;
+  const {
+    title,
+    body: noteBody,
+    color,
+    folder,
+  } = body as Record<string, unknown>;
 
-  if (typeof title !== "string" || !title.trim()) return null;
-  if (typeof noteBody !== "string") return null;
+  if (typeof title !== "string") {
+    return { error: "Invalid note data" };
+  }
+  if (typeof noteBody !== "string") {
+    return { error: "Invalid note data" };
+  }
 
-  return {
-    title: title.trim(),
+  const input: NoteInput = {
+    title,
     body: noteBody,
   };
+
+  if (color !== undefined) {
+    if (typeof color !== "string" || !validPocketColorKeys.has(color as PocketColorKey)) {
+      return { error: "Invalid note data" };
+    }
+    input.color = color as PocketColorKey;
+  }
+
+  if (folder !== undefined) {
+    if (folder === null) {
+      input.folder = null;
+    } else {
+      const validated = validateFolderPath(folder);
+      if (!validated) {
+        return { error: "Invalid folder name" };
+      }
+      // Prefer existing casing when the folder already exists.
+      input.folder = findExistingFolderCasing(existingFolders, validated) ?? validated;
+    }
+  }
+
+  return { input };
 }
 
 export async function GET() {
@@ -28,12 +66,13 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const input = parseNoteInput(await request.json());
-    if (!input) {
-      return NextResponse.json({ error: "Invalid note data" }, { status: 400 });
+    const existingFolders = distinctFolders(await listFolderNames());
+    const parsed = parseNoteInput(await request.json(), existingFolders);
+    if ("error" in parsed) {
+      return NextResponse.json({ error: parsed.error }, { status: 400 });
     }
 
-    const note = await createNote(input);
+    const note = await createNote(parsed.input);
     return NextResponse.json(note, { status: 201 });
   } catch (error) {
     console.error("POST /api/notes failed:", error);

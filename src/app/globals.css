@@ -92,3 +92,147 @@ select option {
     animation: none;
   }
 }
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.notes-md {
+  color: var(--foreground);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.notes-md > :first-child {
+  margin-top: 0;
+}
+
+.notes-md > :last-child {
+  margin-bottom: 0;
+}
+
+.notes-md h1,
+.notes-md h2,
+.notes-md h3,
+.notes-md h4,
+.notes-md h5,
+.notes-md h6 {
+  font-family: var(--font-orbitron), sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin: 1.1em 0 0.45em;
+  line-height: 1.25;
+}
+
+.notes-md h1 {
+  font-size: 1.35rem;
+}
+
+.notes-md h2 {
+  font-size: 1.2rem;
+}
+
+.notes-md h3 {
+  font-size: 1.05rem;
+}
+
+.notes-md h4,
+.notes-md h5,
+.notes-md h6 {
+  font-size: 0.95rem;
+}
+
+.notes-md p {
+  margin: 0.65em 0;
+}
+
+.notes-md ul,
+.notes-md ol {
+  margin: 0.65em 0;
+  padding-left: 1.35rem;
+}
+
+.notes-md ul {
+  list-style: disc;
+}
+
+.notes-md ol {
+  list-style: decimal;
+}
+
+.notes-md li {
+  margin: 0.2em 0;
+}
+
+.notes-md a {
+  color: #51b5ee;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.notes-md code {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.85em;
+  background: color-mix(in srgb, #565f68 55%, transparent);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+}
+
+.notes-md pre {
+  margin: 0.85em 0;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: #1a1a2e;
+  padding: 0.85rem 1rem;
+}
+
+.notes-md pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.82rem;
+}
+
+.notes-md blockquote {
+  margin: 0.85em 0;
+  padding: 0.15em 0 0.15em 0.9rem;
+  border-left: 3px solid #51b5ee;
+  color: #9a9da2;
+}
+
+.notes-md table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.85em 0;
+  font-size: 0.875rem;
+}
+
+.notes-md th,
+.notes-md td {
+  border: 1px solid #565f68;
+  padding: 0.4rem 0.55rem;
+  text-align: left;
+}
+
+.notes-md th {
+  background: color-mix(in srgb, #565f68 40%, transparent);
+  font-weight: 600;
+}
+
+.notes-md hr {
+  border: none;
+  border-top: 1px solid #565f68;
+  margin: 1.1em 0;
+}
+
+.notes-md img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
