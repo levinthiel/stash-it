@@ -55,10 +55,10 @@ function GroceryStoreSectionHeader({ store, leftCount }: { store: GroceryStore; 
   return (
     <h2
       className="flex items-baseline gap-1.5 px-1 pt-4 pb-1 first:pt-0"
-      style={{ fontFamily: "var(--font-orbitron), sans-serif" }}
+      style={{ fontFamily: "var(--font-bebas-neue), sans-serif", fontWeight: 400 }}
     >
       <span
-        className="text-sm font-bold uppercase tracking-wider"
+        className="text-sm uppercase tracking-wider"
         style={{ color: colors.textPrimary }}
       >
         {store}
@@ -290,7 +290,7 @@ export function GroceryOverview() {
           <h1
             className="shrink-0 font-bold uppercase tracking-wide leading-none"
             style={{
-              fontFamily: "var(--font-orbitron), sans-serif",
+              fontFamily: "var(--font-bebas-neue), sans-serif", fontWeight: 400,
               color: colors.textPrimary,
             }}
           >

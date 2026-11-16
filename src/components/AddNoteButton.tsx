@@ -43,13 +43,13 @@ export function AddNoteButton({ onAddNote, onAddFolder }: AddNoteButtonProps) {
   };
 
   const menuItemClass =
-    "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-80";
+    "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-80";
 
   return (
     <div ref={rootRef} className="fixed bottom-6 right-6 z-40">
       {open && onAddFolder && (
         <div
-          className="absolute bottom-[calc(100%+10px)] right-0 w-44 overflow-hidden rounded-xl p-1.5"
+          className="absolute bottom-[calc(100%+10px)] right-0 w-44 overflow-hidden rounded-3xl p-1.5"
           style={{
             background: colors.modalSurface,
             border: `1px solid ${colors.border}`,
@@ -91,10 +91,9 @@ export function AddNoteButton({ onAddNote, onAddFolder }: AddNoteButtonProps) {
         aria-label={onAddFolder ? "Add note or folder" : "Add note"}
         aria-expanded={onAddFolder ? open : undefined}
         aria-haspopup={onAddFolder ? "menu" : undefined}
-        className="flex h-14 w-14 items-center justify-center rounded-xl transition-transform active:scale-95"
+        className="flex h-14 w-14 items-center justify-center rounded-3xl transition-transform active:scale-95"
         style={{
           background: colors.pocketYellow,
-          borderRadius: 14,
         }}
       >
         <Plus width={26} height={26} strokeWidth={2.5} color={colors.textDark} />

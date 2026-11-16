@@ -92,7 +92,7 @@ export function PocketOverview() {
           <h1
             className="shrink-0 font-bold uppercase tracking-wide leading-none"
             style={{
-              fontFamily: "var(--font-orbitron), sans-serif",
+              fontFamily: "var(--font-bebas-neue), sans-serif", fontWeight: 400,
               color: colors.textPrimary,
             }}
           >

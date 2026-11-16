@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { LongArrowDownRight } from "iconoir-react";
 import { colors } from "@/lib/colors";
 import {
   folderDepth,
@@ -22,7 +23,7 @@ const fieldStyle = {
   background: colors.modalInput,
   border: `1px solid ${colors.border}`,
   color: colors.textPrimary,
-  borderRadius: 8,
+  borderRadius: 16,
 };
 
 function MoveToFolderDialogForm({
@@ -56,14 +57,14 @@ function MoveToFolderDialogForm({
   };
 
   const optionClass =
-    "w-full rounded-lg px-3 py-3 text-left text-sm font-semibold transition-opacity hover:opacity-90";
+    "flex w-full items-center gap-2 rounded-2xl px-3 py-3 text-left text-sm font-semibold transition-opacity hover:opacity-90";
 
   return (
     <>
       <h2
         className="mb-5 text-lg font-bold uppercase tracking-wider"
         style={{
-          fontFamily: "var(--font-orbitron), sans-serif",
+          fontFamily: "var(--font-bebas-neue), sans-serif", fontWeight: 400,
           color: colors.textPrimary,
         }}
       >
@@ -75,7 +76,7 @@ function MoveToFolderDialogForm({
           type="button"
           className={optionClass}
           style={{
-            background: currentFolder === null ? colors.neonBlue : colors.shell,
+            background: currentFolder === null ? colors.pocketYellow : colors.shell,
             color: currentFolder === null ? colors.textDark : colors.textPrimary,
           }}
           onClick={() => onSelect(null)}
@@ -92,13 +93,22 @@ function MoveToFolderDialogForm({
               type="button"
               className={optionClass}
               style={{
-                background: active ? colors.neonBlue : colors.shell,
+                background: active ? colors.pocketYellow : colors.shell,
                 color: active ? colors.textDark : colors.textPrimary,
                 paddingLeft: 12 + depth * 16,
               }}
               onClick={() => onSelect(folder)}
             >
-              {folderLeafName(folder)}
+              {depth > 0 && (
+                <LongArrowDownRight
+                  width={16}
+                  height={16}
+                  strokeWidth={2}
+                  aria-hidden
+                  className="shrink-0"
+                />
+              )}
+              <span className="min-w-0 truncate">{folderLeafName(folder)}</span>
             </button>
           );
         })}
@@ -132,15 +142,15 @@ function MoveToFolderDialogForm({
                   setShowNew(false);
                   setError(null);
                 }}
-                className="flex-1 rounded-lg py-2.5 text-sm font-semibold uppercase tracking-wide"
+                className="flex-1 rounded-2xl py-2.5 text-sm font-semibold uppercase tracking-wide"
                 style={{ background: colors.shell, color: colors.textSecondary }}
               >
                 Back
               </button>
               <button
                 type="submit"
-                className="flex-1 rounded-lg py-2.5 text-sm font-semibold uppercase tracking-wide"
-                style={{ background: colors.neonBlue, color: colors.textDark }}
+                className="flex-1 rounded-2xl py-2.5 text-sm font-semibold uppercase tracking-wide"
+                style={{ background: colors.pocketYellow, color: colors.textDark }}
               >
                 Create
               </button>
@@ -151,7 +161,7 @@ function MoveToFolderDialogForm({
             type="button"
             onClick={() => setShowNew(true)}
             className="w-full py-2 text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-80"
-            style={{ color: colors.neonBlue }}
+            style={{ color: colors.pocketYellow }}
           >
             New folder…
           </button>
@@ -161,7 +171,7 @@ function MoveToFolderDialogForm({
       <button
         type="button"
         onClick={onClose}
-        className="mt-4 w-full rounded-lg py-2.5 text-sm font-semibold uppercase tracking-wide"
+        className="mt-4 w-full rounded-2xl py-2.5 text-sm font-semibold uppercase tracking-wide"
         style={{ background: colors.shell, color: colors.textSecondary }}
       >
         Cancel
@@ -190,7 +200,7 @@ export function MoveToFolderDialog({
         style={{
           background: colors.modalSurface,
           border: `1px solid ${colors.border}`,
-          borderRadius: 8,
+          borderRadius: 24,
         }}
         onClick={(e) => e.stopPropagation()}
       >

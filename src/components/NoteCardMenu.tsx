@@ -45,7 +45,7 @@ export function NoteCardMenu({
   return (
     <div
       ref={ref}
-      className="absolute top-8 right-0 z-30 min-w-[10.5rem] overflow-hidden rounded-lg py-1 shadow-lg"
+      className="absolute top-10 right-0 z-30 min-w-[10.5rem] overflow-hidden rounded-2xl py-1 shadow-lg"
       style={{
         background: colors.modalSurface,
         border: `1px solid ${colors.panelLine}`,

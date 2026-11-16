@@ -133,7 +133,7 @@ export function PinGate() {
         <h1
           className="shrink-0 font-bold uppercase tracking-wide leading-none"
           style={{
-            fontFamily: "var(--font-orbitron), sans-serif",
+            fontFamily: "var(--font-bebas-neue), sans-serif", fontWeight: 400,
             color: colors.textPrimary,
           }}
         >
@@ -155,7 +155,7 @@ export function PinGate() {
           <h2
             className="mb-2 text-lg font-bold uppercase tracking-wider"
             style={{
-              fontFamily: "var(--font-orbitron), sans-serif",
+              fontFamily: "var(--font-bebas-neue), sans-serif", fontWeight: 400,
               color: colors.textPrimary,
             }}
           >

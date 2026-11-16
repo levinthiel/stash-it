@@ -348,7 +348,7 @@ export function NotesOverview() {
           <h1
             className="shrink-0 font-bold uppercase tracking-wide leading-none"
             style={{
-              fontFamily: "var(--font-orbitron), sans-serif",
+              fontFamily: "var(--font-bebas-neue), sans-serif", fontWeight: 400,
               color: colors.textPrimary,
             }}
           >
@@ -375,7 +375,7 @@ export function NotesOverview() {
 
         {error && (
           <p
-            className="hw-outline mb-4 rounded-lg px-3 py-2 text-sm"
+            className="hw-outline mb-4 rounded-2xl px-3 py-2 text-sm"
             style={{
               background: colors.shell,
               color: colors.pocketRed,
@@ -397,8 +397,8 @@ export function NotesOverview() {
             <button
               type="button"
               onClick={() => openCreate(null)}
-              className="rounded-lg px-4 py-2.5 text-sm font-semibold uppercase tracking-wide"
-              style={{ background: colors.neonBlue, color: colors.textDark }}
+              className="rounded-2xl px-4 py-2.5 text-sm font-semibold uppercase tracking-wide"
+              style={{ background: colors.pocketYellow, color: colors.textDark }}
             >
               New note
             </button>
@@ -443,15 +443,15 @@ export function NotesOverview() {
                 type="button"
                 aria-label="Back"
                 onClick={handleBackFromFolder}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-opacity hover:opacity-80"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl transition-opacity hover:opacity-80"
                 style={{ background: colors.shell, color: colors.textPrimary }}
               >
                 <NavArrowLeft width={20} height={20} strokeWidth={2} />
               </button>
               <h2
-                className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-base font-bold uppercase tracking-wide"
+                className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-2xl uppercase leading-none tracking-wide"
                 style={{
-                  fontFamily: "var(--font-orbitron), sans-serif",
+                  fontFamily: "var(--font-bebas-neue), sans-serif", fontWeight: 400,
                   color: colors.textPrimary,
                 }}
               >
@@ -473,7 +473,7 @@ export function NotesOverview() {
                               }
                               className="truncate uppercase tracking-wide transition-opacity hover:opacity-80"
                               style={{
-                                fontFamily: "var(--font-orbitron), sans-serif",
+                                fontFamily: "var(--font-bebas-neue), sans-serif", fontWeight: 400,
                                 color: colors.textSecondary,
                               }}
                             >
@@ -505,8 +505,8 @@ export function NotesOverview() {
                 <button
                   type="button"
                   onClick={() => openCreate(activeView.folder)}
-                  className="rounded-lg px-4 py-2.5 text-sm font-semibold uppercase tracking-wide"
-                  style={{ background: colors.neonBlue, color: colors.textDark }}
+                  className="rounded-2xl px-4 py-2.5 text-sm font-semibold uppercase tracking-wide"
+                  style={{ background: colors.pocketYellow, color: colors.textDark }}
                 >
                   New note
                 </button>
@@ -611,7 +611,7 @@ export function NotesOverview() {
             style={{
               background: colors.modalSurface,
               border: `1px solid ${colors.border}`,
-              borderRadius: 8,
+              borderRadius: 24,
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -622,7 +622,7 @@ export function NotesOverview() {
               <button
                 type="button"
                 onClick={() => setDeletingNote(null)}
-                className="hw-outline flex-1 rounded-lg py-3 text-sm font-semibold"
+                className="hw-outline flex-1 rounded-2xl py-3 text-sm font-semibold"
                 style={{ background: colors.shell, color: colors.textSecondary }}
               >
                 Keep
@@ -630,7 +630,7 @@ export function NotesOverview() {
               <button
                 type="button"
                 onClick={() => handleDeleteNote(deletingNote.id)}
-                className="hw-outline flex-1 rounded-lg py-3 text-sm font-semibold"
+                className="hw-outline flex-1 rounded-2xl py-3 text-sm font-semibold"
                 style={{ background: colors.pocketRed, color: colors.textDark }}
               >
                 Delete

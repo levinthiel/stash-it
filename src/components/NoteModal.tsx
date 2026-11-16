@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Pin } from "iconoir-react";
+import { useEffect, useState } from "react";
+import { EditPencil, Folder, Pin, Xmark } from "iconoir-react";
 import { MarkdownView } from "@/components/MarkdownView";
 import { MoveToFolderDialog } from "@/components/MoveToFolderDialog";
 import { colors } from "@/lib/colors";
@@ -33,8 +33,11 @@ const fieldStyle = {
   background: colors.modalInput,
   border: `1px solid ${colors.border}`,
   color: colors.textPrimary,
-  borderRadius: 8,
+  borderRadius: 16,
 };
+
+const iconButtonClass =
+  "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl transition-opacity hover:opacity-80";
 
 function NoteModalForm({
   mode,
@@ -98,50 +101,94 @@ function NoteModalForm({
     }
   };
 
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (folderDialogOpen) {
+        setFolderDialogOpen(false);
+        return;
+      }
+      onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [folderDialogOpen, onClose]);
+
   const folderLabel = folder ?? UNSORTED_LABEL;
+  const showPen = mode === "edit" && !isEditing;
 
   return (
     <>
-      <div className="overflow-y-auto p-6">
-        <div className="mb-4 flex items-start justify-between gap-3">
+      <div className="flex min-h-full flex-1 flex-col px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        <div className="mb-5 flex items-center justify-between gap-3">
           <h2
-            className="text-lg font-bold uppercase tracking-wider"
+            className="min-w-0 text-2xl uppercase leading-none tracking-wide"
             style={{
-              fontFamily: "var(--font-orbitron), sans-serif",
+              fontFamily: "var(--font-bebas-neue), sans-serif",
+              fontWeight: 400,
               color: colors.textPrimary,
             }}
           >
             {mode === "create" ? "New Note" : isEditing ? "Edit Note" : "Note"}
           </h2>
-          <button
-            type="button"
-            aria-label={pinned ? "Unpin note" : "Pin note"}
-            aria-pressed={pinned}
-            onClick={handlePinClick}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-opacity hover:opacity-80"
-            style={{
-              background: colors.shell,
-              color: pinned ? colors.accent : colors.textSecondary,
-            }}
-          >
-            <Pin width={18} height={18} strokeWidth={2} />
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              aria-label={pinned ? "Unpin note" : "Pin note"}
+              aria-pressed={pinned}
+              onClick={handlePinClick}
+              className={iconButtonClass}
+              style={{
+                background: colors.shell,
+                color: pinned ? colors.accent : colors.textSecondary,
+              }}
+            >
+              <Pin width={18} height={18} strokeWidth={2} />
+            </button>
+            {showPen && (
+              <button
+                type="button"
+                aria-label="Edit note"
+                onClick={() => setIsEditing(true)}
+                className={iconButtonClass}
+                style={{
+                  background: colors.pocketYellow,
+                  color: colors.textDark,
+                }}
+              >
+                <EditPencil width={18} height={18} strokeWidth={2} />
+              </button>
+            )}
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={onClose}
+              className={iconButtonClass}
+              style={{
+                background: colors.shell,
+                color: colors.textPrimary,
+              }}
+            >
+              <Xmark width={18} height={18} strokeWidth={2} />
+            </button>
+          </div>
         </div>
 
         <button
           type="button"
           onClick={() => setFolderDialogOpen(true)}
-          className="mb-4 rounded-lg px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider transition-opacity hover:opacity-80"
+          className="mb-5 inline-flex max-w-full items-center gap-2 self-start rounded-2xl px-3.5 py-2 text-left text-sm font-semibold transition-opacity hover:opacity-80"
           style={{
             background: colors.shell,
-            color: colors.textSecondary,
+            color: colors.textPrimary,
           }}
         >
-          Folder · {folderLabel}
+          <Folder width={18} height={18} strokeWidth={2} color={colors.textSecondary} />
+          <span className="truncate">{folderLabel}</span>
         </button>
 
         {isEditing ? (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col gap-4">
             <label className="flex flex-col gap-1.5">
               <span
                 className="text-xs font-semibold uppercase tracking-wider"
@@ -159,7 +206,7 @@ function NoteModalForm({
               />
             </label>
 
-            <label className="flex flex-col gap-1.5">
+            <label className="flex min-h-64 flex-1 flex-col gap-1.5">
               <span
                 className="text-xs font-semibold uppercase tracking-wider"
                 style={{ color: colors.textSecondary }}
@@ -170,8 +217,7 @@ function NoteModalForm({
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Write something in markdown…"
-                rows={8}
-                className="resize-y px-3 py-2.5 outline-none"
+                className="min-h-64 flex-1 resize-none px-3 py-2.5 outline-none"
                 style={fieldStyle}
               />
             </label>
@@ -183,7 +229,7 @@ function NoteModalForm({
                   if (mode === "edit") setIsEditing(false);
                   else onClose();
                 }}
-                className="flex-1 rounded-lg py-3 text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-80"
+                className="flex-1 rounded-2xl py-3 text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-80"
                 style={{
                   background: colors.shell,
                   color: colors.textSecondary,
@@ -194,9 +240,9 @@ function NoteModalForm({
               </button>
               <button
                 type="submit"
-                className="flex-1 rounded-lg py-3 text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90"
+                className="flex-1 rounded-2xl py-3 text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90"
                 style={{
-                  background: colors.neonBlue,
+                  background: colors.pocketYellow,
                   color: colors.textDark,
                 }}
               >
@@ -215,7 +261,7 @@ function NoteModalForm({
                       <button
                         type="button"
                         onClick={() => setShowDeleteConfirm(false)}
-                        className="hw-outline flex-1 rounded-lg py-3 text-sm font-semibold"
+                        className="hw-outline flex-1 rounded-2xl py-3 text-sm font-semibold"
                         style={{ background: colors.shell, color: colors.textSecondary }}
                       >
                         Keep
@@ -223,7 +269,7 @@ function NoteModalForm({
                       <button
                         type="button"
                         onClick={handleDelete}
-                        className="hw-outline flex-1 rounded-lg py-3 text-sm font-semibold"
+                        className="hw-outline flex-1 rounded-2xl py-3 text-sm font-semibold"
                         style={{
                           background: colors.pocketRed,
                           color: colors.textDark,
@@ -249,38 +295,13 @@ function NoteModalForm({
         ) : (
           <div className="flex flex-col gap-4">
             <h3
-              className="text-base font-semibold"
+              className="text-lg font-semibold"
               style={{ color: colors.textPrimary }}
               title={note?.title}
             >
               {note?.title}
             </h3>
             <MarkdownView source={note?.body ?? ""} />
-            <div className="mt-2 flex gap-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 rounded-lg py-3 text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-80"
-                style={{
-                  background: colors.shell,
-                  color: colors.textSecondary,
-                  border: `1px solid ${colors.border}`,
-                }}
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsEditing(true)}
-                className="flex-1 rounded-lg py-3 text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90"
-                style={{
-                  background: colors.neonBlue,
-                  color: colors.textDark,
-                }}
-              >
-                Edit
-              </button>
-            </div>
           </div>
         )}
       </div>
@@ -312,32 +333,21 @@ export function NoteModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
-      onClick={onClose}
+      className="fixed inset-0 z-50 flex flex-col overflow-y-auto"
+      style={{ background: colors.modalSurface }}
     >
-      <div className="absolute inset-0 bg-black/80" />
-      <div
-        className="relative z-10 flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden"
-        style={{
-          background: colors.modalSurface,
-          border: `1px solid ${colors.border}`,
-          borderRadius: 8,
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <NoteModalForm
-          key={note?.id ?? `create-${defaultFolder ?? "unsorted"}`}
-          mode={mode}
-          note={note}
-          folders={folders}
-          defaultFolder={defaultFolder}
-          onClose={onClose}
-          onConfirm={onConfirm}
-          onDelete={onDelete}
-          onPinToggle={onPinToggle}
-          onFolderChange={onFolderChange}
-        />
-      </div>
+      <NoteModalForm
+        key={note?.id ?? `create-${defaultFolder ?? "unsorted"}`}
+        mode={mode}
+        note={note}
+        folders={folders}
+        defaultFolder={defaultFolder}
+        onClose={onClose}
+        onConfirm={onConfirm}
+        onDelete={onDelete}
+        onPinToggle={onPinToggle}
+        onFolderChange={onFolderChange}
+      />
     </div>
   );
 }

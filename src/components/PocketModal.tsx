@@ -91,7 +91,7 @@ export function PocketModal({
           <h2
             className="mb-6 text-lg font-bold uppercase tracking-wider"
             style={{
-              fontFamily: "var(--font-orbitron), sans-serif",
+              fontFamily: "var(--font-bebas-neue), sans-serif", fontWeight: 400,
               color: colors.textPrimary,
             }}
           >
