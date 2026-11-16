@@ -19,41 +19,10 @@ const homeApps: HomeApp[] = [
   { href: "/spendings", label: "spend", Icon: Wallet, accent: colors.pocketTeal },
 ];
 
-const ledTiming = [
-  { active: true, delay: "0s", duration: "2.2s" },
-  { active: true, delay: "0.7s", duration: "1.4s" },
-  { active: true, delay: "1.3s", duration: "2.8s" },
-  { active: false, delay: "0.4s", duration: "6s" },
-  { active: false, delay: "2.1s", duration: "7.5s" },
-  { active: false, delay: "1.8s", duration: "5.5s" },
-  { active: false, delay: "3.2s", duration: "8s" },
-  { active: false, delay: "0.9s", duration: "6.8s" },
-];
-
-function PadDots({ accent, onAccent }: { accent: string; onAccent?: boolean }) {
-  return (
-    <div className="grid grid-cols-4 gap-1">
-      {ledTiming.map((led, i) => (
-        <div
-          key={i}
-          className={`h-1.5 w-1.5 rounded-full ${led.active ? "server-led-active" : "server-led-idle"}`}
-          style={{
-            background: led.active
-              ? onAccent
-                ? colors.textPrimary
-                : accent
-              : onAccent
-                ? "transparent"
-                : colors.shell,
-            border: `1px solid ${colors.outline}`,
-            ["--led-delay" as string]: led.delay,
-            ["--led-duration" as string]: led.duration,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
+const titleFont = {
+  fontFamily: "var(--font-bebas-neue), sans-serif",
+  fontWeight: 400,
+} as const;
 
 export function HomeLauncher() {
   return (
@@ -61,9 +30,9 @@ export function HomeLauncher() {
       <header className="pb-6">
         <div className="flex w-full items-center gap-3 text-2xl">
           <h1
-            className="shrink-0 font-bold uppercase tracking-wide leading-none"
+            className="shrink-0 text-[2rem] uppercase leading-none tracking-wide"
             style={{
-              fontFamily: "var(--font-orbitron), sans-serif",
+              ...titleFont,
               color: colors.textPrimary,
             }}
           >
@@ -80,41 +49,29 @@ export function HomeLauncher() {
             const labelColor = accent === colors.pocketYellow ? colors.textDark : colors.textPrimary;
 
             return (
-            <Link
-              key={href}
-              href={href}
-              className="relative block aspect-square overflow-hidden text-left transition-transform active:scale-[0.97]"
-              style={{
-                background: accent,
-                border: `6px solid ${accent}`,
-                borderRadius: 16,
-              }}
-            >
-              <div className="flex h-full flex-col p-3">
-                <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-1">
-                  <Icon
-                    width={48}
-                    height={48}
-                    strokeWidth={2}
-                    color={labelColor}
-                  />
-                  <p
-                    className="text-center text-lg font-bold uppercase leading-none whitespace-nowrap"
+              <Link
+                key={href}
+                href={href}
+                className="flex aspect-square items-center justify-center text-center transition-transform active:scale-[0.97]"
+                style={{
+                  background: accent,
+                  borderRadius: 28,
+                }}
+              >
+                <span className="flex flex-col items-center justify-center gap-3 px-3">
+                  <Icon width={48} height={48} strokeWidth={2} color={labelColor} />
+                  <span
+                    className="text-center text-[1.65rem] uppercase leading-none whitespace-nowrap"
                     style={{
-                      fontFamily: "var(--font-orbitron), sans-serif",
+                      ...titleFont,
                       color: labelColor,
-                      letterSpacing: "0.05em",
+                      letterSpacing: "0.08em",
                     }}
                   >
                     {label}
-                  </p>
-                </div>
-
-                <div className="mt-2.5">
-                  <PadDots accent={accent} onAccent />
-                </div>
-              </div>
-            </Link>
+                  </span>
+                </span>
+              </Link>
             );
           })}
         </div>

@@ -16,7 +16,7 @@ export function NotesToast({ message }: NotesToastProps) {
       aria-live="polite"
     >
       <p
-        className="max-w-sm rounded-lg px-4 py-2.5 text-center text-sm shadow-lg"
+        className="max-w-sm rounded-2xl px-4 py-2.5 text-center text-sm shadow-lg"
         style={{
           background: colors.modalSurface,
           color: colors.textPrimary,

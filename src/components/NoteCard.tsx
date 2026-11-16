@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { MoreVert, Pin } from "iconoir-react";
 import { NoteCardMenu } from "@/components/NoteCardMenu";
-import { colors, getPocketColor } from "@/lib/colors";
+import { colors } from "@/lib/colors";
 import { stripMarkdown } from "@/lib/markdown";
-import { relativeTime } from "@/lib/time";
 import type { Note } from "@/types/note";
 
 interface NoteCardProps {
@@ -16,7 +15,7 @@ interface NoteCardProps {
   onDelete: () => void;
 }
 
-function notePreview(body: string, maxLength = 160): string {
+function notePreview(body: string, maxLength = 420): string {
   const text = stripMarkdown(body).replace(/\s+/g, " ").trim();
   if (!text) return "No content";
   return text.length > maxLength ? `${text.slice(0, maxLength)}…` : text;
@@ -24,45 +23,42 @@ function notePreview(body: string, maxLength = 160): string {
 
 export function NoteCard({ note, onOpen, onPinToggle, onMove, onDelete }: NoteCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const accent = getPocketColor(note.color ?? "pocketBlue").accent;
 
   return (
     <div
-      className="relative w-full rounded-xl text-left transition-transform active:scale-[0.99]"
+      className="relative w-full min-h-[9.25rem] rounded-3xl text-left transition-transform active:scale-[0.99]"
       style={{ background: colors.shell }}
     >
       <button
         type="button"
         onClick={onOpen}
-        className="w-full px-4 py-3 pr-12 text-left"
+        className="flex min-h-[9.25rem] w-full flex-col items-stretch justify-start px-4 py-4 pr-12 text-left"
       >
         <p
-          className="line-clamp-1 text-sm font-semibold uppercase tracking-wide"
-          style={{ color: accent }}
-          title={note.title}
+          className="flex items-center gap-1.5 text-base font-semibold uppercase tracking-wide"
+          style={{ color: colors.textPrimary }}
         >
-          {note.title}
+          <span className="line-clamp-1 min-w-0" title={note.title}>
+            {note.title}
+          </span>
+          {note.pinned && (
+            <span className="inline-flex shrink-0" aria-label="Pinned">
+              <Pin width={14} height={14} strokeWidth={2} color={colors.accent} />
+            </span>
+          )}
         </p>
         <p
-          className="mt-1.5 line-clamp-2 text-xs leading-relaxed"
+          className="mt-2 line-clamp-4 text-sm leading-relaxed"
           style={{ color: colors.textPrimary }}
         >
           {notePreview(note.body)}
         </p>
-        <div className="mt-2 flex items-center gap-2 text-[11px]" style={{ color: colors.textSecondary }}>
-          <span>{relativeTime(note.updatedAt)}</span>
-          {note.pinned && (
-            <span className="inline-flex items-center gap-0.5" aria-label="Pinned">
-              <Pin width={12} height={12} strokeWidth={2} color={colors.accent} />
-            </span>
-          )}
-        </div>
       </button>
 
       <button
         type="button"
         aria-label="Note options"
-        className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-md transition-opacity hover:opacity-80"
+        className="absolute top-2.5 right-2.5 flex h-8 w-8 items-center justify-center rounded-xl transition-opacity hover:opacity-80"
         style={{ color: colors.textSecondary }}
         onClick={(e) => {
           e.stopPropagation();

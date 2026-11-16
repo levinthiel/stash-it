@@ -30,7 +30,7 @@ const fieldStyle = {
   background: colors.modalInput,
   border: `1px solid ${colors.border}`,
   color: colors.textPrimary,
-  borderRadius: 8,
+  borderRadius: 16,
 };
 
 function FolderNameDialogForm({
@@ -96,7 +96,7 @@ function FolderNameDialogForm({
       <h2
         className="mb-6 text-lg font-bold uppercase tracking-wider"
         style={{
-          fontFamily: "var(--font-orbitron), sans-serif",
+          fontFamily: "var(--font-bebas-neue), sans-serif", fontWeight: 400,
           color: colors.textPrimary,
         }}
       >
@@ -146,7 +146,7 @@ function FolderNameDialogForm({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-lg py-3 text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-80"
+            className="flex-1 rounded-2xl py-3 text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-80"
             style={{
               background: colors.shell,
               color: colors.textSecondary,
@@ -157,9 +157,9 @@ function FolderNameDialogForm({
           </button>
           <button
             type="submit"
-            className="flex-1 rounded-lg py-3 text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90"
+            className="flex-1 rounded-2xl py-3 text-sm font-semibold uppercase tracking-wide transition-opacity hover:opacity-90"
             style={{
-              background: colors.neonBlue,
+              background: colors.pocketYellow,
               color: colors.textDark,
             }}
           >
@@ -179,7 +179,7 @@ function FolderNameDialogForm({
                   <button
                     type="button"
                     onClick={() => setConfirmUnsorted(false)}
-                    className="hw-outline flex-1 rounded-lg py-3 text-sm font-semibold"
+                    className="hw-outline flex-1 rounded-2xl py-3 text-sm font-semibold"
                     style={{ background: colors.shell, color: colors.textSecondary }}
                   >
                     Keep
@@ -187,7 +187,7 @@ function FolderNameDialogForm({
                   <button
                     type="button"
                     onClick={onMoveToUnsorted}
-                    className="hw-outline flex-1 rounded-lg py-3 text-sm font-semibold"
+                    className="hw-outline flex-1 rounded-2xl py-3 text-sm font-semibold"
                     style={{
                       background: colors.pocketYellow,
                       color: colors.textDark,
@@ -238,7 +238,7 @@ export function FolderNameDialog({
         style={{
           background: colors.modalSurface,
           border: `1px solid ${colors.border}`,
-          borderRadius: 8,
+          borderRadius: 24,
         }}
         onClick={(e) => e.stopPropagation()}
       >

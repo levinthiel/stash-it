@@ -65,7 +65,7 @@ export function FolderPillBar({
   };
 
   const pillBase =
-    "shrink-0 rounded-lg px-3 py-1.5 text-sm font-semibold whitespace-nowrap transition-opacity active:opacity-80";
+    "shrink-0 rounded-2xl px-3 py-1.5 text-sm font-semibold whitespace-nowrap transition-opacity active:opacity-80";
 
   const isAll = activeView.type === "all";
   const isUnsorted = activeView.type === "folder" && activeView.folder === null;
@@ -84,7 +84,7 @@ export function FolderPillBar({
           aria-pressed={isAll}
           className={pillBase}
           style={{
-            background: isAll ? colors.neonBlue : colors.shell,
+            background: isAll ? colors.pocketYellow : colors.shell,
             color: isAll ? colors.textDark : colors.textPrimary,
           }}
           onClick={onSelectAll}
@@ -100,7 +100,7 @@ export function FolderPillBar({
           aria-pressed={isUnsorted}
           className={pillBase}
           style={{
-            background: isUnsorted ? colors.neonBlue : colors.shell,
+            background: isUnsorted ? colors.pocketYellow : colors.shell,
             color: isUnsorted ? colors.textDark : colors.textPrimary,
           }}
           onClick={onSelectUnsorted}
@@ -123,7 +123,7 @@ export function FolderPillBar({
               aria-pressed={active}
               className={pillBase}
               style={{
-                background: active ? colors.neonBlue : colors.shell,
+                background: active ? colors.pocketYellow : colors.shell,
                 color: active ? colors.textDark : colors.textPrimary,
               }}
               onClick={() => {
@@ -205,7 +205,7 @@ export function ChildFolderPills({
   if (folders.length === 0) return null;
 
   const pillBase =
-    "shrink-0 rounded-lg px-3 py-1.5 text-sm font-semibold whitespace-nowrap transition-opacity active:opacity-80";
+    "shrink-0 rounded-2xl px-3 py-1.5 text-sm font-semibold whitespace-nowrap transition-opacity active:opacity-80";
 
   return (
     <div className="scrollbar-none flex gap-2 overflow-x-auto pb-0.5">
